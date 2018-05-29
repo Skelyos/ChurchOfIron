@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class NodewarRetrivalService {
 
-  constructor() { }
+  constructor(
+    public http: HttpClient
+  ) { }
 
-  // const mongoose = require('mongoose');
-  // mongoose.connect('mongodb://localhost/test');
-
-  // const Cat = mongoose.model('Cat', { name: String });
-
-  // const kitty = new Cat({ name: 'Zildjian' });
-  // kitty.save().then(() => console.log('meow'));
+  getNodewar(nodewarCode) {
+    const url = 'http://localhost:3000/api/nodewar';
+    return this.http.post(url, nodewarCode);
+  }
 
 }

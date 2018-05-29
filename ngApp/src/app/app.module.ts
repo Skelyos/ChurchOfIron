@@ -5,30 +5,28 @@ import { AppRoutingModule } from './app-routing.module';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
-import { NodewarviewComponent } from './nodewarview/nodewarview.component';
 import { HomeModule } from './home/home.module';
 
 import { NgbModule, NgbCarouselModule, NgbCarouselConfig } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
-import { NodewarRetrivalService } from './Services/nodewar-retrival.service';
+import { NodewarviewModule } from './nodewarview/nodewarview.module';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent,
-    NodewarviewComponent
+    HomeComponent
   ],
   imports: [
     BrowserModule,
     NgbModule,
     HttpClientModule,
     HomeModule,
+    NodewarviewModule,
 
     AppRoutingModule,
   ],
   providers: [
-    NodewarRetrivalService
   ],
   bootstrap: [
     AppComponent
