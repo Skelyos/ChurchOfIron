@@ -10,4 +10,4 @@ const nodeWarSchema = new Schema({
     PeopleAttending: Array
 });
 
-module.exports = mongoose.model('Nodewar', nodeWarSchema);
+module.exports = mongoose.model('410032498995888128', nodeWarSchema);

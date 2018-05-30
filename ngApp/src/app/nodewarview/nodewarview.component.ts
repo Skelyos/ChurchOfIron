@@ -20,8 +20,14 @@ export class NodewarviewComponent implements OnInit {
   ];
 
   nodewarinfo; any;
+  guildList: any;
+
   nodewarcode = {
-    code: 'z3oae'
+    code: 'yhcnb',
+    GuildId: '410032498995888128'
+  };
+  guildId = {
+    GuildId: '410032498995888128'
   };
 
   constructor(
@@ -33,8 +39,10 @@ export class NodewarviewComponent implements OnInit {
       this.nodewarinfo = result;
       debugger;
     });
-    console.log(this.nodewarinfo);
-    console.log(this.nodewarcode);
+    this.nodewar.getUserList(this.guildId).subscribe((result) => {
+      this.guildList = result;
+      debugger;
+    });
   }
 
 }
