@@ -10,12 +10,14 @@ import { HomeModule } from './home/home.module';
 import { NgbModule, NgbCarouselModule, NgbCarouselConfig } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
 import { NodewarviewModule } from './nodewarview/nodewarview.module';
+import { UserlistComponent } from './userlist/userlist.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent
+    HomeComponent,
+    UserlistComponent
   ],
   imports: [
     BrowserModule,

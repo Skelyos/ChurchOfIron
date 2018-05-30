@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
 router.post('/nodewar', (req, res) => {
     let userData = req.body;
     const dbName = 'NodeWarList';
-    // Connect using MongoClient
+    
     MongoClient.connect(url, (err, client) => {
         const adminDb = client.db(dbName).admin();
         const col = client.db(dbName).collection(userData.GuildId);
@@ -25,7 +25,6 @@ router.post('/nodewar', (req, res) => {
                     res.status(200).send(items);
                 }
             }
-            console.log(items);
             client.close();
         });
     });
@@ -34,7 +33,7 @@ router.post('/nodewar', (req, res) => {
 router.post('/userlist', (req, res) => {
     let userData = req.body;
     const dbName = 'UserLists';
-    // Connect using MongoClient
+    
     MongoClient.connect(url, (err, client) => {
         const adminDb = client.db(dbName).admin();
         const col = client.db(dbName).collection(userData.GuildId);
@@ -48,7 +47,6 @@ router.post('/userlist', (req, res) => {
                     res.status(200).send(items);
                 }
             }
-            console.log(items);
             client.close();
         });
     });

@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { subscribeOn } from 'rxjs/operator/subscribeOn';
 import { NodewarRetrivalService } from '../services/nodewar-retrival.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-nodewarview',
-  templateUrl: './nodewarview.component.html',
-  styleUrls: ['./nodewarview.component.scss']
+  selector: 'app-userlist',
+  templateUrl: './userlist.component.html',
+  styleUrls: ['./userlist.component.scss']
 })
-export class NodewarviewComponent implements OnInit {
+export class UserlistComponent implements OnInit {
   headers = [
     'Class',
     'Level',
@@ -19,28 +18,23 @@ export class NodewarviewComponent implements OnInit {
     'DP',
     'RS'
   ];
-
-  nodewarinfo; any;
-
-  nodewarcode = {
-    code: 'yhcnb',
+  guildList: any;
+  guildIdObject = {
     GuildId: ''
   };
-
-  // http://localhost:4200/nodewar/410032498995888128
 
   constructor(
     public nodewar: NodewarRetrivalService,
     public route: ActivatedRoute
   ) {
     this.route.params.subscribe((result) => {
-      this.nodewarcode.GuildId = result.guildId;
+      this.guildIdObject.GuildId = result.guildId;
     });
   }
 
   ngOnInit() {
-    this.nodewar.getNodewar(this.nodewarcode).subscribe((result) => {
-      this.nodewarinfo = result;
+    this.nodewar.getUserList(this.guildIdObject).subscribe((result) => {
+      this.guildList = result;
     });
   }
 

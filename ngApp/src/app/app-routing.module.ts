@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { NodewarviewComponent } from './nodewarview/nodewarview.component';
+import { UserlistComponent } from './userlist/userlist.component';
 
 const routes: Routes = [
   {
@@ -9,7 +10,11 @@ const routes: Routes = [
     component: HomeComponent
   },
   {
-    path: 'nodewar',
+    path: 'userlist/:guildId',
+    component: UserlistComponent
+  },
+  {
+    path: 'nodewar/:guildId',
     component: NodewarviewComponent
   },
 ];
