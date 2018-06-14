@@ -20,3 +20,5 @@ app.get('/', (req, res) => {
 // });
 
 app.listen(process.env.PORT);
+
+// changes were made to this page to accomodate a video that could be a bunch of shit though
