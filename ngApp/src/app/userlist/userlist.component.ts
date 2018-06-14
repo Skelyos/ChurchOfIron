@@ -23,6 +23,9 @@ export class UserlistComponent implements OnInit {
     GuildId: ''
   };
 
+  // Good test stuff
+  // http://localhost:4200/userlist/405861356252692481
+
   constructor(
     public nodewar: NodewarRetrivalService,
     public route: ActivatedRoute
