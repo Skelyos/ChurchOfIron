@@ -9,12 +9,12 @@ export class NodewarRetrivalService {
   ) { }
 
   getNodewar(nodewarCode) {
-    const url = 'http://localhost:3000/api/nodewar';
+    const url = 'http://churchofiron.co.uk:3000/api/nodewar';
     return this.http.post(url, nodewarCode);
   }
 
   getUserList(guildId) {
-    const url = 'http://localhost:3000/api/userlist';
+    const url = 'http://churchofiron.co.uk:3000/api/userlist';
     return this.http.post(url, guildId);
   }
 

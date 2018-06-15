@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 
-// const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const api = require('./routes/api');
 const app = express();
 app.use(cors());
@@ -15,10 +15,6 @@ app.get('/', (req, res) => {
     res.send('hello from server');
 });
 
-// app.listen(PORT, () => {
-//     console.log('Server running on localhost ' + PORT);
-// });
-
-app.listen(process.env.PORT);
-
-// changes were made to this page to accomodate a video that could be a bunch of shit though
+app.listen(PORT, () => {
+    console.log('Server running on localhost ' + PORT);
+});
