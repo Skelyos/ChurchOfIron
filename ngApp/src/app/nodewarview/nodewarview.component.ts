@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DoCheck, OnChanges } from '@angular/core';
 import { subscribeOn } from 'rxjs/operator/subscribeOn';
 import { NodewarRetrivalService } from '../services/nodewar-retrival.service';
 import { ActivatedRoute } from '@angular/router';
@@ -8,7 +8,7 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './nodewarview.component.html',
   styleUrls: ['./nodewarview.component.scss']
 })
-export class NodewarviewComponent implements OnInit {
+export class NodewarviewComponent implements OnChanges {
   headers = [
     'Class',
     'Level',
@@ -19,11 +19,15 @@ export class NodewarviewComponent implements OnInit {
     'DP',
     'RS'
   ];
+  nodewarCode = '';
+  nodewarinfo: any;
 
-  nodewarinfo; any;
+  nodewarName: '';
+  dateOfNodeWar: Date;
 
-  nodewarcode = {
-    code: 'yhcnb',
+
+  nodewarObject = {
+    code: this.nodewarCode,
     GuildId: ''
   };
 
@@ -34,13 +38,22 @@ export class NodewarviewComponent implements OnInit {
     public route: ActivatedRoute
   ) {
     this.route.params.subscribe((result) => {
-      this.nodewarcode.GuildId = result.guildId;
+      this.nodewarObject.GuildId = result.guildId;
     });
   }
 
-  ngOnInit() {
-    this.nodewar.getNodewar(this.nodewarcode).subscribe((result) => {
-      this.nodewarinfo = result;
+  ngOnChanges() {
+    if (this.nodewarinfo !== undefined) {
+      this.nodewarName = this.nodewarinfo.NodewarName;
+      this.dateOfNodeWar = new Date(this.nodewarinfo.DateOfActivity);
+    }
+  }
+
+  getNodewarWithCode() {
+    this.nodewarObject.code = this.nodewarCode;
+    this.nodewar.getNodewar(this.nodewarObject).subscribe((result) => {
+      this.nodewarinfo = result[0];
+      console.log(this.nodewarinfo.NodewarName);
     });
   }
 

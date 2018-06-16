@@ -1,29 +1,43 @@
-<table class="table table-bordered">
-  <thead>
-    <tr>
-      <th *ngFor="let header of headers">{{header}}</th>
-    </tr>
-  </thead>
+<div class="paddingTopAndBottom">
+  <div class="container">
+    <div class="row">
+      <div class="input-group mb-3">
+        <input class="form-control" placeholder="Nodewar code" [(ngModel)]='nodewarCode'>
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" (click)='getNodewarWithCode()'>Search</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <tbody>
-    <tr>
-      <th scope="row">1</th>
-      <td>Mark</td>
-      <td>Otto</td>
-      <td>@mdo</td>
-    </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>Jacob</td>
-      <td>Thornton</td>
-      <td>@fat</td>
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td>Larry</td>
-      <td>the Bird</td>
-      <td>@twitter</td>
-    </tr>
-  </tbody>
+  <div class="container">
+    <div class="row">
+      <h3>{{nodewarReturnedInfo.nodewarName}}</h3>
+      <h3>{{nodewarReturnedInfo.dateOfNodeWar}}</h3>
+    </div>
+  </div>
 
-</table>
+  <div class="container-fluid ">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th *ngFor="let header of headers">{{header}}</th>
+        </tr>
+      </thead>
+
+      <tbody>
+          <tr *ngFor="let user of nodewarinfo.PeopleAttending">
+            <td>{{user.CharClass}}</td>
+            <td>{{user.CharLevel}}</td>
+            <td>{{user.FamilyName}}</td>
+            <td>{{user.IGN}}</td>
+            <td>{{user.AP}}</td>
+            <td>{{user.AWAP}}</td>
+            <td>{{user.DP}}</td>
+            <td>{{user.RenownScore}}</td>
+          </tr>
+        </tbody>
+
+    </table>
+  </div>
+</div>
