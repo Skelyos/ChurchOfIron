@@ -8,6 +8,7 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./userlist.component.scss']
 })
 export class UserlistComponent implements OnInit {
+
   headers = [
     'Class',
     'Level',

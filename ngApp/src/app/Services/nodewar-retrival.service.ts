@@ -11,13 +11,13 @@ export class NodewarRetrivalService {
   ) { }
 
   getNodewar(nodewarCode) {
-    const route = this.url + '/api/nodewar';
-    return this.http.post(route, nodewarCode);
+    const route = this.url + '/api/nodewar/' + nodewarCode.code;
+    return this.http.get(route);
   }
 
   getUserList(guildId) {
-    const route = this.url + '/api/userlist';
-    return this.http.post(route, guildId);
+    const route = this.url + '/api/userlist/' + guildId.GuildId;
+    return this.http.get(route);
   }
 
 }

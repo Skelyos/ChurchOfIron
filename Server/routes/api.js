@@ -9,12 +9,12 @@ router.get('/', (req, res) => {
     res.send('From API route');
 });
 
-router.post('/nodewar', (req, res) => {
-    let userData = req.body;
+router.get('/nodewar/:id', (req, res) => {
+    let userData = req.params.id;
     
     MongoClient.connect(url, (err, client) => {
         const col = client.db("UserInformation").collection("NodeWarList");
-        col.find({ JoinString: userData.code }).toArray((err, items) => {
+        col.find({ JoinString: userData }).toArray((err, items) => {
             if (err) {
                 console.log('There was an error ' + err);
             } else {
@@ -29,12 +29,12 @@ router.post('/nodewar', (req, res) => {
     });
 });
 
-router.post('/userlist', (req, res) => {
-    let userData = req.body;
+router.get('/userlist/:id', (req, res) => {
+    let userData = req.params.id;
     
     MongoClient.connect(url, (err, client) => {
         const col = client.db("UserInformation").collection("UserList");
-        col.find({UserGuildId: userData.GuildId}).toArray((err, items) => {
+        col.find({UserGuildId: userData}).toArray((err, items) => {
             if (err) {
                 console.log('There was an error ' + err);
             } else {
