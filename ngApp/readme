@@ -1,0 +1,5 @@
+When you want to pull this down you do a 
+
+npm install then an ng serve to build the project
+
+You got to http://localhost:4200 to see the current build
