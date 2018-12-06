@@ -1,5 +1,12 @@
-When you want to pull this down you do a 
+**** To get the build running  ****
 
-npm install then an ng serve to build the project
+When you want to pull this down you do a npm install then and then an ng serve to build the project
 
 You got to http://localhost:4200 to see the current build
+
+**** After you have pushed or made changes ****
+
+Once a build is ready you do an ng build then copy over the dist folder to the AWS
+
+Once copied over refresh the website and app-pool and it should be up and running again
+
