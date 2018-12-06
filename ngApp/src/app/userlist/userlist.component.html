@@ -1,4 +1,7 @@
 <div class="container-fluid paddingTopAndBottom">
+
+  <mat-slide-toggle [checked]="showAllTickBox" (toggleChange)="changeToggleVariable()">Show all?</mat-slide-toggle>
+
   <table class="table table-bordered">
     <thead>
       <tr>
@@ -8,6 +11,7 @@
 
     <tbody>
       <tr *ngFor="let user of guildList">
+        <td *ngIf="showAllTickBox">{{user.Username}}</td>
         <td>{{user.CharClass}}</td>
         <td>{{user.CharLevel}}</td>
         <td>{{user.FamilyName}}</td>

@@ -1,5 +1,4 @@
-import { Component, DoCheck, OnChanges } from '@angular/core';
-import { subscribeOn } from 'rxjs/operator/subscribeOn';
+import { Component, OnChanges } from '@angular/core';
 import { NodewarRetrivalService } from '../services/nodewar-retrival.service';
 import { ActivatedRoute } from '@angular/router';
 

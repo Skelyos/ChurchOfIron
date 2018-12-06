@@ -24,6 +24,8 @@ export class UserlistComponent implements OnInit {
     GuildId: ''
   };
 
+  showAllTickBox = false;
+
   // Good test stuff
   // http://localhost:4200/userlist/405861356252692481
 
@@ -37,9 +39,31 @@ export class UserlistComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.showUsernames();
+    this.getUserList();
+  }
+
+  getUserList() {
     this.nodewar.getUserList(this.guildIdObject).subscribe((result) => {
       this.guildList = result;
     });
+  }
+
+  showUsernames() {
+    if (this.showAllTickBox) {
+      this.headers.unshift('Username');
+    }
+    if (!this.showAllTickBox) {
+      const usernameIndex = this.headers.indexOf('Username');
+      if (usernameIndex !== -1) {
+        this.headers.splice(usernameIndex, 1);
+      }
+    }
+  }
+
+  changeToggleVariable() {
+    this.showAllTickBox = !this.showAllTickBox;
+    this.showUsernames();
   }
 
 }
