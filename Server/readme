@@ -1,0 +1,12 @@
+**** To get the build running  ****
+
+When you want to pull this down you do a node server to start the server
+
+Then go to http://localhost:3000 to see the current build
+
+**** After you have pushed or made changes ****
+
+Once a build is ready you do an ng build then copy over the whole server folder
+
+Once copied over refresh the website and app-pool and it should be up and running again
+
