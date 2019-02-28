@@ -1,27 +1,47 @@
 <div class="container-fluid paddingTopAndBottom">
 
-  <mat-slide-toggle [checked]="showAllTickBox" (toggleChange)="changeToggleVariable()">Show all?</mat-slide-toggle>
+  <div class="row marginBottom">
+    <div class="marginLeft">
+      <mat-slide-toggle [checked]="showAllTickBox" (toggleChange)="changeToggleVariable()">Show all data
+      </mat-slide-toggle>
+    </div>
+    <div class="marginLeft">
+      <mat-slide-toggle [checked]="filtersShowing" (toggleChange)="showFilters()">Show filters
+      </mat-slide-toggle>
+    </div>
+  </div>
 
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th *ngFor="let header of headers">{{header}}</th>
-      </tr>
-    </thead>
+  <div class="row marginBottom" *ngIf="filtersShowing">
+    <div class="col" *ngFor="let filter of filterBar">
+      <mat-slide-toggle [checked]="filter.checked" (toggleChange)="filterValues(filter)">{{filter.text}} </mat-slide-toggle>
+    </div>
+  </div>
 
-    <tbody>
-      <tr *ngFor="let user of guildList">
-        <td *ngIf="showAllTickBox">{{user.Username}}</td>
-        <td>{{user.CharClass}}</td>
-        <td>{{user.CharLevel}}</td>
-        <td>{{user.FamilyName}}</td>
-        <td>{{user.IGN}}</td>
-        <td>{{user.AP}}</td>
-        <td>{{user.AWAP}}</td>
-        <td>{{user.DP}}</td>
-        <td>{{user.RenownScore}}</td>
-      </tr>
-    </tbody>
+  <div class="row marginBottom">
+    <div class="col">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th *ngFor="let header of headers">{{header}}</th>
+          </tr>
+        </thead>
 
-  </table>
+        <tbody>
+          <tr *ngFor="let user of filteredList">
+            <td *ngIf="showAllTickBox">{{user.Username}}</td>
+            <td>{{user.CharClass}}</td>
+            <td>{{user.CharLevel}}</td>
+            <td>{{user.FamilyName}}</td>
+            <td>{{user.IGN}}</td>
+            <td>{{user.AP}}</td>
+            <td>{{user.AWAP}}</td>
+            <td>{{user.DP}}</td>
+            <td>{{user.RenownScore}}</td>
+          </tr>
+        </tbody>
+
+      </table>
+    </div>
+  </div>
+
 </div>
