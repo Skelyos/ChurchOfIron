@@ -11,12 +11,14 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
 import { NodewarviewModule } from './nodewarview/nodewarview.module';
 import { UserListModule } from './userlist/user-list.module';
+import { WhatToChatOnComponent } from './what-to-chat-on/what-to-chat-on.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
+    WhatToChatOnComponent,
   ],
   imports: [
     BrowserModule,

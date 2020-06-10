@@ -1,0 +1,38 @@
+.main-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.container-box {
+    display: flex;
+    padding: 12px;
+    height: 98vh;
+}
+
+.outside-box {
+    display: flex;
+    align-items: center;
+    margin: auto;
+    border: 1px solid;
+    padding: 12px;
+}
+
+.image-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.image-box-section {
+    margin-bottom: 12px;
+
+    p {
+        text-align: center;
+    }
+
+    img {
+        border-radius: 100%;
+    }
+}
