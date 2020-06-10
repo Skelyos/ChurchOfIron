@@ -26,7 +26,7 @@ export class WhatToChatOnComponent {
     {
       id: 3,
       name: 'Instagram',
-      imageUrl: 'assets/facebook-logo.png'
+      imageUrl: 'assets/instagram-logo.png'
     },
   ];
 
