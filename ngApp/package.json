@@ -27,6 +27,7 @@
     "bootstrap": "^4.6.0",
     "core-js": "^2.6.12",
     "node-sass": "^4.14.1",
+    "ramda": "^0.27.1",
     "rxjs": "^6.6.7",
     "tslib": "^1.14.1",
     "zone.js": "^0.8.29"
@@ -39,6 +40,7 @@
     "@types/jasmine": "^2.8.18",
     "@types/jasminewd2": "^2.0.10",
     "@types/node": "^6.0.118",
+    "@types/ramda": "github:types/npm-ramda#dist",
     "codelyzer": "^4.5.0",
     "jasmine-core": "~2.8.0",
     "jasmine-spec-reporter": "~4.2.1",

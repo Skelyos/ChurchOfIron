@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { HolotoolsService } from "./../../../services/holotools.service";
+import { splitEvery } from "ramda";
 
 @Component({
   selector: "app-view-screen",
@@ -9,11 +10,13 @@ import { HolotoolsService } from "./../../../services/holotools.service";
   styleUrls: ["./view-screen.component.scss"],
 })
 export class ViewScreenComponent implements OnInit {
+  public loading = true;
+
   public innerWidth = 0;
-  public innerHeight= 0;
+  public innerHeight = 0;
   public currentlyLive = {};
 
-  public maxColumns = 3
+  public maxColumns = 3;
 
   constructor(
     private holotoolsService: HolotoolsService,
@@ -24,16 +27,13 @@ export class ViewScreenComponent implements OnInit {
     this.setHeightAndWidth();
     this.holotoolsService.getHololiveLives().subscribe((information) => {
       this.currentlyLive = information;
-
-      // Temp push of repeated data
-      for (let index = 0; index < 8; index++) {
-        this.currentlyLive['live'].push(information['live'][0])
-      }
+      this.loading = false;
     });
   }
 
-  splitIntoEvenRows() {
-    
+  splitIntoEvenRows(currentLive) {
+    const blarp = splitEvery(this.maxColumns, currentLive);
+    return blarp;
   }
 
   setHeightAndWidth() {
@@ -43,7 +43,7 @@ export class ViewScreenComponent implements OnInit {
 
   onWindowResize(event) {
     this.innerWidth = event.target.innerWidth;
-    this.innerHeight= event.target.innerHeight;
+    this.innerHeight = event.target.innerHeight;
   }
 
   getEmbeddedUrl(videoKey) {
@@ -52,16 +52,20 @@ export class ViewScreenComponent implements OnInit {
   }
 
   drop(event: CdkDragDrop<string[]>) {
-    moveItemInArray(this.currentlyLive['live'], event.previousIndex, event.currentIndex);
+    moveItemInArray(
+      this.currentlyLive["ended"],
+      event.previousIndex,
+      event.currentIndex
+    );
   }
 
   getWindowWidth(itemCount) {
-    const calculatedWidth = (this.innerWidth / itemCount) - 36;
-    return calculatedWidth
+    const calculatedWidth = this.innerWidth / itemCount - 36;
+    return calculatedWidth;
   }
 
   getWindowHeight(itemCount) {
-    const calculatedHeight = (this.innerHeight / itemCount);
-    return calculatedHeight
+    const calculatedHeight = this.innerHeight / itemCount;
+    return calculatedHeight;
   }
 }
