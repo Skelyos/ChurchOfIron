@@ -14,6 +14,7 @@ export class ViewScreenComponent implements OnInit {
   public innerWidth = 0;
   public innerHeight = 0;
   public currentlyLive = {};
+  public selectedLivers = [];
 
   public maxColumns = 3;
 
@@ -55,7 +56,20 @@ export class ViewScreenComponent implements OnInit {
   }
 
   getWindowHeight(itemCount) {
-    const calculatedHeight = this.innerHeight / itemCount - 4;
+    const calculatedHeight = this.innerHeight / itemCount;
     return calculatedHeight;
+  }
+
+  imageSelected(object) {
+    const foundIndex = this.selectedLivers.findIndex((liver) => liver.id === object.id);
+    if (foundIndex != -1) {
+      return this.selectedLivers.splice(foundIndex, 1);
+    }
+    this.selectedLivers.push(object);
+  }
+
+  findImageSelected(currentStream) {
+    const foundIndex = this.selectedLivers.findIndex((liver) => liver.id === currentStream.id);
+    return foundIndex != -1 ? true : false;
   }
 }

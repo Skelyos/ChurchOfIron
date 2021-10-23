@@ -1,6 +1,12 @@
 <ng-container *ngIf="!loading" (window:resize)="onWindowResize($event)">
-  <div class="holo-grid">
-    <div class="holo-row" *ngFor="let currentLiveRow of splitIntoEvenRows(currentlyLive.ended)">
+  <div class="select-holo">
+    <div class="channel-bubble" [ngClass]="{'selected' : findImageSelected(currentStream)}" *ngFor="let currentStream of currentlyLive.upcoming" (click)="imageSelected(currentStream)">
+      <img [src]="currentStream.channel.photo" width="48" height="48">
+    </div>
+  </div>
+
+  <div class="holo-grid" *ngIf="this.selectedLivers.length > 0">
+    <div class="holo-row" *ngFor="let currentLiveRow of splitIntoEvenRows(this.selectedLivers)">
       <iframe
         *ngFor="let currentLive of currentLiveRow"
         [width]="getWindowWidth(currentLiveRow.length)"
