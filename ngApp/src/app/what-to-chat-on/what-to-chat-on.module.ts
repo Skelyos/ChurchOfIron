@@ -1,19 +1,19 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgbCarouselConfig } from '@ng-bootstrap/ng-bootstrap';
-import { HomeComponent } from './home.component';
-import { HomeRoutingModule } from './home-routing.module';
+import { WhatToChatOnComponent } from './what-to-chat-on.component';
+import { WhatToChatOnRoutingModule } from './what-to-chat-on-routing.module';
 
 @NgModule({
   imports: [
     CommonModule,
-    HomeRoutingModule
+    WhatToChatOnRoutingModule
   ],
   declarations: [
-    HomeComponent
+    WhatToChatOnComponent
   ],
   providers: [
     NgbCarouselConfig,
   ]
 })
-export class HomeModule { }
+export class WhatToChatOnModule { }

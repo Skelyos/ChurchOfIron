@@ -9,4 +9,3 @@ Then go to http://localhost:3000 to see the current build
 Once a build is ready you do an ng build then copy over the whole server folder
 
 Once copied over refresh the website and app-pool and it should be up and running again
-

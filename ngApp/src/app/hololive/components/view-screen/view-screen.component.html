@@ -1,0 +1,13 @@
+<div cdkDropList cdkDropListOrientation="horizontal" class="example-list" (cdkDropListDropped)="drop($event)" (window:resize)="onWindowResize($event)">
+  <div class="example-box" *ngFor="let currentLive of currentlyLive.live" cdkDrag>
+    <iframe
+      [width]="getWindowWidth(currentlyLive.live.length)"
+      [height]="getWindowHeight(currentlyLive.live.length)"
+      [src]="getEmbeddedUrl(currentLive.yt_video_key)"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen
+    ></iframe>
+  </div>
+</div>
+

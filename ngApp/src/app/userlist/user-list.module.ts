@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { UserlistComponent } from './userlist.component';
 import { NodewarRetrivalService } from '../services/nodewar-retrival.service';
 import { FormsModule } from '@angular/forms';
+import { UserListRoutingModule } from './user-list-routing.module';
 
 // Material
 import { MatSlideToggleModule } from '@angular/material';
@@ -12,7 +13,8 @@ import { MatSlideToggleModule } from '@angular/material';
     CommonModule,
     FormsModule,
     // Material
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    UserListRoutingModule
   ],
   declarations: [
     UserlistComponent,

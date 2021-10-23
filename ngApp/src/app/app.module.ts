@@ -1,39 +1,16 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { BrowserModule } from "@angular/platform-browser";
+import { NgModule } from "@angular/core";
 
-import { AppRoutingModule } from './app-routing.module';
+import { AppRoutingModule } from "./app-routing.module";
 
-import { AppComponent } from './app.component';
-import { HomeComponent } from './home/home.component';
-import { HomeModule } from './home/home.module';
+import { AppComponent } from "./app.component";
 
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClientModule } from '@angular/common/http';
-import { NodewarviewModule } from './nodewarview/nodewarview.module';
-import { UserListModule } from './userlist/user-list.module';
-import { WhatToChatOnComponent } from './what-to-chat-on/what-to-chat-on.component';
-
+import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
+import { HttpClientModule } from "@angular/common/http";
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    HomeComponent,
-    WhatToChatOnComponent,
-  ],
-  imports: [
-    BrowserModule,
-    NgbModule,
-    HttpClientModule,
-    HomeModule,
-    NodewarviewModule,
-    UserListModule,
-
-    AppRoutingModule,
-  ],
-  providers: [
-  ],
-  bootstrap: [
-    AppComponent
-  ]
+  declarations: [AppComponent],
+  imports: [BrowserModule, NgbModule, HttpClientModule, AppRoutingModule],
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

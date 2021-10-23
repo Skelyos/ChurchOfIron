@@ -1,26 +1,26 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { HomeComponent } from './home/home.component';
-import { NodewarviewComponent } from './nodewarview/nodewarview.component';
-import { UserlistComponent } from './userlist/userlist.component';
-import { WhatToChatOnComponent } from './what-to-chat-on/what-to-chat-on.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: HomeComponent
+    loadChildren: () => import('./home/home.module').then( m => m.HomeModule)
   },
   {
     path: 'whatToChatOn',
-    component: WhatToChatOnComponent
+    loadChildren: () => import('./what-to-chat-on/what-to-chat-on.module').then( m => m.WhatToChatOnModule)
   },
   {
-    path: 'userlist/:guildId',
-    component: UserlistComponent
+    path: 'userlist',
+    loadChildren: () => import('./userlist/user-list.module').then( m => m.UserListModule)
   },
   {
-    path: 'nodewar/:guildId',
-    component: NodewarviewComponent
+    path: 'nodewar',
+    loadChildren: () => import('./nodewarview/nodewarview.module').then( m => m.NodewarviewModule)
+  },
+  {
+    path: 'hololive',
+    loadChildren: () => import('./hololive/hololive.module').then( m => m.HololiveModule)
   },
 ];
 

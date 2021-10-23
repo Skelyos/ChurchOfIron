@@ -7,17 +7,17 @@ export class NodewarRetrivalService {
   // url = 'http://localhost:3000';
 
   constructor(
-    public http: HttpClient
+    public httpClient: HttpClient
   ) { }
 
   getNodewar(nodewarCode) {
     const route = this.url + '/api/nodewar/' + nodewarCode.code;
-    return this.http.get(route);
+    return this.httpClient.get(route);
   }
 
   getUserList(guildId) {
     const route = this.url + '/api/userlist/' + guildId.GuildId;
-    return this.http.get(route);
+    return this.httpClient.get(route);
   }
 
 }
