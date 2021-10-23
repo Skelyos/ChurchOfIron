@@ -1,9 +1,10 @@
-<ng-container *ngIf="!loading">
-  <div cdkDropList cdkDropListOrientation="horizontal" sortingDisabled="true" class="example-list" (cdkDropListDropped)="drop($event)" (window:resize)="onWindowResize($event)">
-    <div class="example-box" *ngFor="let currentLive of currentlyLive.ended" cdkDrag>
+<ng-container *ngIf="!loading" (window:resize)="onWindowResize($event)">
+  <div class="holo-grid">
+    <div class="holo-row" *ngFor="let currentLiveRow of splitIntoEvenRows(currentlyLive.ended)">
       <iframe
-        [width]="getWindowWidth(currentlyLive.ended.length)"
-        [height]="getWindowHeight(currentlyLive.ended.length)"
+        *ngFor="let currentLive of currentLiveRow"
+        [width]="getWindowWidth(currentLiveRow.length)"
+        [height]="getWindowHeight(splitIntoEvenRows(currentlyLive.ended).length)"
         [src]="getEmbeddedUrl(currentLive.yt_video_key)"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         frameborder="0"
@@ -12,4 +13,3 @@
     </div>
   </div>
 </ng-container>
-

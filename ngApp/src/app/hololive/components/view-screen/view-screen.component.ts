@@ -1,6 +1,5 @@
 import { Component, OnInit } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
-import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { HolotoolsService } from "./../../../services/holotools.service";
 import { splitEvery } from "ramda";
 
@@ -32,13 +31,12 @@ export class ViewScreenComponent implements OnInit {
   }
 
   splitIntoEvenRows(currentLive) {
-    const blarp = splitEvery(this.maxColumns, currentLive);
-    return blarp;
+    return splitEvery(this.maxColumns, currentLive);
   }
 
   setHeightAndWidth() {
     this.innerWidth = window.innerWidth;
-    this.innerHeight = window.innerHeight;
+    this.innerHeight = window.innerHeight - 12;
   }
 
   onWindowResize(event) {
@@ -51,21 +49,13 @@ export class ViewScreenComponent implements OnInit {
     return this.sanitizer.bypassSecurityTrustResourceUrl(generatedUrl);
   }
 
-  drop(event: CdkDragDrop<string[]>) {
-    moveItemInArray(
-      this.currentlyLive["ended"],
-      event.previousIndex,
-      event.currentIndex
-    );
-  }
-
   getWindowWidth(itemCount) {
-    const calculatedWidth = this.innerWidth / itemCount - 36;
+    const calculatedWidth = this.innerWidth / itemCount;
     return calculatedWidth;
   }
 
   getWindowHeight(itemCount) {
-    const calculatedHeight = this.innerHeight / itemCount;
+    const calculatedHeight = this.innerHeight / itemCount - 4;
     return calculatedHeight;
   }
 }
