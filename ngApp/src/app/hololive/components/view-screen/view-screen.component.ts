@@ -46,7 +46,9 @@ export class ViewScreenComponent implements OnInit {
   }
 
   getEmbeddedUrl(videoKey) {
-    const generatedUrl = `https://www.youtube.com/embed/${videoKey}`;
+    // const extraDetails = '?enablejsapi=1&autoplay=0&modestbranding=1&iv_load_policy=3&widget_referrer=localhost:4200/hololive';
+    const extraDetails = '';
+    const generatedUrl = `https://www.youtube.com/embed/${videoKey}${extraDetails}`;
     return this.sanitizer.bypassSecurityTrustResourceUrl(generatedUrl);
   }
 
@@ -56,11 +58,12 @@ export class ViewScreenComponent implements OnInit {
   }
 
   getWindowHeight(itemCount) {
-    const calculatedHeight = this.innerHeight / itemCount;
+    const removeToolbarHeight = 77 / this.splitIntoEvenRows(this.selectedLivers).length;
+    const calculatedHeight = (this.innerHeight / itemCount) - removeToolbarHeight;
     return calculatedHeight;
   }
 
-  imageSelected(object) {
+  handleImageSelected(object) {
     const foundIndex = this.selectedLivers.findIndex((liver) => liver.id === object.id);
     if (foundIndex != -1) {
       return this.selectedLivers.splice(foundIndex, 1);

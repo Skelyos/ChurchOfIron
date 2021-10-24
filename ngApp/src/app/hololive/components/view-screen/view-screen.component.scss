@@ -1,8 +1,8 @@
 .holo-grid {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 48px);
-  max-height: calc(100vh - 48px);
+  height: calc(100vh - 77px);
+  max-height: calc(100vh - 77px);
   padding: 4px;
 }
 
@@ -18,7 +18,7 @@
 .select-holo {
   display: flex;
   overflow: auto;
-  padding-bottom: 8px;
+  padding-bottom: 8px !important;
   padding: 4px 8px 0 0;
 }
 
