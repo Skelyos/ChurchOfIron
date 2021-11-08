@@ -7,10 +7,6 @@ const routes: Routes = [
     loadChildren: () => import('./home/home.module').then( m => m.HomeModule)
   },
   {
-    path: 'whatToChatOn',
-    loadChildren: () => import('./what-to-chat-on/what-to-chat-on.module').then( m => m.WhatToChatOnModule)
-  },
-  {
     path: 'userlist',
     loadChildren: () => import('./userlist/user-list.module').then( m => m.UserListModule)
   },
