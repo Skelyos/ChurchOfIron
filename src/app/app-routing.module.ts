@@ -4,19 +4,19 @@ import { Routes, RouterModule } from '@angular/router';
 const routes: Routes = [
   {
     path: '',
-    loadChildren: () => import('./home/home.module').then( m => m.HomeModule)
+    loadChildren: './contact/home.module#HomeModule'
   },
   {
     path: 'userlist',
-    loadChildren: () => import('./userlist/user-list.module').then( m => m.UserListModule)
+    loadChildren: './contact/user-list.module#UserListModule'
   },
   {
     path: 'nodewar',
-    loadChildren: () => import('./nodewarview/nodewarview.module').then( m => m.NodewarviewModule)
+    loadChildren: './contact/nodewarview.module#NodewarviewModule'
   },
   {
     path: 'hololive',
-    loadChildren: () => import('./hololive/hololive.module').then( m => m.HololiveModule)
+    loadChildren: './contact/hololive.module#HololiveModule'
   },
 ];
 
