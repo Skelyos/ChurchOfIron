@@ -1,5 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { HolotoolsService } from "./../../../services/holotools.service";
+import { CurrentlyLiveModel } from "./curretly-live.model";
 
 @Component({
   selector: "app-live-bubble-modal",
@@ -8,13 +9,13 @@ import { HolotoolsService } from "./../../../services/holotools.service";
 })
 export class LiveBubbleModalComponent implements OnInit {
   public loading = true;
-  public currentlyLive = {};
+  public currentlyLive: CurrentlyLiveModel;
   public selectedLivers = [];
 
   constructor(private holotoolsService: HolotoolsService) {}
 
   ngOnInit() {
-    this.holotoolsService.getHololiveLives().subscribe((information) => {
+    this.holotoolsService.getHololiveLives().subscribe((information: CurrentlyLiveModel) => {
       this.currentlyLive = information;
       this.loading = false;
     });
