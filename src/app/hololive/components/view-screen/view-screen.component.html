@@ -1,16 +1,14 @@
-<ng-container *ngIf="!loading" (window:resize)="onWindowResize($event)">
+<ng-container (window:resize)="onWindowResize($event)">
   <div class="select-holo">
-    <div class="channel-bubble" [ngClass]="{'selected' : findImageSelected(currentStream)}" *ngFor="let currentStream of currentlyLive.live" (click)="handleImageSelected(currentStream)">
-      <img [src]="currentStream.channel.photo" width="48" height="48">
-    </div>
+    <button mat-raised-button (click)="openDialog()">Select videos</button>
   </div>
 
-  <div class="holo-grid" *ngIf="selectedLivers.length > 0">
-    <div class="holo-row" *ngFor="let currentLiveRow of splitIntoEvenRows(selectedLivers)">
+  <div class="holo-grid" *ngIf="displayedVideos.length > 0">
+    <div class="holo-row" *ngFor="let currentLiveRow of displayedVideos">
       <iframe
         *ngFor="let currentLive of currentLiveRow"
         [width]="getWindowWidth(currentLiveRow.length)"
-        [height]="getWindowHeight(splitIntoEvenRows(selectedLivers).length)"
+        [height]="getWindowHeight(displayedVideos.length)"
         [src]="getEmbeddedUrl(currentLive.yt_video_key)"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         frameborder="0"

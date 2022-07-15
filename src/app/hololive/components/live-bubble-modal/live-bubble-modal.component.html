@@ -1,0 +1,8 @@
+<div class="channel-bubble-container">
+  <div class="channel-bubble" *ngFor="let currentStream of currentlyLive.upcoming" (click)="handleImageSelected(currentStream)">
+    <img [src]="currentStream.channel.photo" width="48" height="48" [ngClass]="{'selected' : findImageSelected(currentStream)}">
+    <div>
+      <span>{{currentStream.channel.name}} - {{currentStream.title}}</span>
+    </div>
+  </div>
+</div>

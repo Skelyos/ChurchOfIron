@@ -1,7 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
-import { HolotoolsService } from "./../../../services/holotools.service";
 import { splitEvery } from "ramda";
+import { MatDialog } from "@angular/material";
+import { LiveBubbleModalComponent } from "../live-bubble-modal/live-bubble-modal.component";
 
 @Component({
   selector: "app-view-screen",
@@ -9,30 +10,25 @@ import { splitEvery } from "ramda";
   styleUrls: ["./view-screen.component.scss"],
 })
 export class ViewScreenComponent implements OnInit {
-  public loading = true;
 
   public innerWidth = 0;
   public innerHeight = 0;
-  public currentlyLive = {};
-  public selectedLivers = [];
+  public displayedVideos = [];
 
   public maxColumns = 3;
 
   constructor(
-    private holotoolsService: HolotoolsService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit() {
     this.setHeightAndWidth();
-    this.holotoolsService.getHololiveLives().subscribe((information) => {
-      this.currentlyLive = information;
-      this.loading = false;
-    });
   }
 
   splitIntoEvenRows(currentLive) {
-    return splitEvery(this.maxColumns, currentLive);
+    const evenRows = splitEvery(this.maxColumns, currentLive);
+    return evenRows;
   }
 
   setHeightAndWidth() {
@@ -58,21 +54,23 @@ export class ViewScreenComponent implements OnInit {
   }
 
   getWindowHeight(itemCount) {
-    const removeToolbarHeight = 77 / this.splitIntoEvenRows(this.selectedLivers).length;
-    const calculatedHeight = (this.innerHeight / itemCount) - removeToolbarHeight;
+    const removeToolbarHeight = 77 / this.displayedVideos.length;
+    console.log(removeToolbarHeight);
+
+    const calculatedHeight = (this.innerHeight / this.displayedVideos.length) - removeToolbarHeight;
     return calculatedHeight;
   }
 
-  handleImageSelected(object) {
-    const foundIndex = this.selectedLivers.findIndex((liver) => liver.id === object.id);
-    if (foundIndex != -1) {
-      return this.selectedLivers.splice(foundIndex, 1);
-    }
-    this.selectedLivers.push(object);
-  }
+  openDialog(): void {
+    const dialogRef = this.dialog.open(LiveBubbleModalComponent, {
+      height: '85%',
+      width: '960px',
+      data: { currentlyDisplayed: this.displayedVideos },
+    });
 
-  findImageSelected(currentStream) {
-    const foundIndex = this.selectedLivers.findIndex((liver) => liver.id === currentStream.id);
-    return foundIndex != -1 ? true : false;
+    dialogRef.afterClosed().subscribe(result => {
+      this.displayedVideos = result;
+      debugger;
+    });
   }
 }
