@@ -1,13 +1,19 @@
-import { Component, OnChanges } from '@angular/core';
+import { Component, inject, OnChanges } from '@angular/core';
 import { NodewarRetrivalService } from '../services/nodewar-retrival.service';
+import { NodewarInfo } from '../services/nodewar.model';
 import { ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-nodewarview',
+  standalone: true,
+  imports: [FormsModule],
   templateUrl: './nodewarview.component.html',
   styleUrls: ['./nodewarview.component.scss']
 })
 export class NodewarviewComponent implements OnChanges {
+  private readonly nodewar = inject(NodewarRetrivalService);
+  private readonly route = inject(ActivatedRoute);
   headers = [
     'Class',
     'Level',
@@ -19,10 +25,10 @@ export class NodewarviewComponent implements OnChanges {
     'RS'
   ];
   nodewarCode = '';
-  nodewarinfo: any;
+  nodewarinfo?: NodewarInfo;
 
-  nodewarName: '';
-  dateOfNodeWar: Date;
+  nodewarName = '';
+  dateOfNodeWar?: Date;
 
 
   nodewarObject = {
@@ -32,10 +38,7 @@ export class NodewarviewComponent implements OnChanges {
 
   // http://localhost:4200/nodewar/410032498995888128
 
-  constructor(
-    public nodewar: NodewarRetrivalService,
-    public route: ActivatedRoute
-  ) {
+  constructor() {
     this.route.params.subscribe((result) => {
       this.nodewarObject.GuildId = result.guildId;
     });
@@ -52,7 +55,7 @@ export class NodewarviewComponent implements OnChanges {
     this.nodewarObject.code = this.nodewarCode;
     this.nodewar.getNodewar(this.nodewarObject).subscribe((result) => {
       this.nodewarinfo = result[0];
-      console.log(this.nodewarinfo.NodewarName);
+      console.log(this.nodewarinfo?.NodewarName);
     });
   }
 
