@@ -1,13 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { NodewarRetrivalService } from '../services/nodewar-retrival.service';
+import { GuildMember } from '../services/nodewar.model';
 import { ActivatedRoute } from '@angular/router';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+
+interface FilterOption {
+  text: string;
+  value: number;
+  checked: boolean;
+}
 
 @Component({
   selector: 'app-userlist',
+  standalone: true,
+  imports: [MatSlideToggleModule],
   templateUrl: './userlist.component.html',
   styleUrls: ['./userlist.component.scss']
 })
 export class UserlistComponent implements OnInit {
+  private readonly nodewar = inject(NodewarRetrivalService);
+  private readonly route = inject(ActivatedRoute);
 
   headers = [
     'Class',
@@ -19,8 +31,8 @@ export class UserlistComponent implements OnInit {
     'DP',
     'RS'
   ];
-  guildList: any;
-  filteredList: any;
+  guildList: GuildMember[] = [];
+  filteredList: GuildMember[] = [];
   guildIdObject = {
     GuildId: ''
   };
@@ -28,7 +40,7 @@ export class UserlistComponent implements OnInit {
   showAllTickBox = false;
   filtersShowing = false;
 
-  filterBar = [
+  filterBar: FilterOption[] = [
     {
       text: 'Filter by class',
       value: 0,
@@ -74,10 +86,7 @@ export class UserlistComponent implements OnInit {
   // Good test stuff
   // http://localhost:4200/userlist/405861356252692481
 
-  constructor(
-    public nodewar: NodewarRetrivalService,
-    public route: ActivatedRoute
-  ) {
+  constructor() {
     this.route.params.subscribe((result) => {
       this.guildIdObject.GuildId = result.guildId;
     });
@@ -88,7 +97,7 @@ export class UserlistComponent implements OnInit {
     this.getUserList();
   }
 
-  cloneArray(array) {
+  cloneArray<T>(array: T[]): T[] {
     return array.slice(0);
   }
 
@@ -125,7 +134,7 @@ export class UserlistComponent implements OnInit {
     }
   }
 
-  setFiltersToDefault(value) {
+  setFiltersToDefault(value: number | null) {
     this.filterBar.forEach((filter) => {
       if (value === null || value !== filter.value) {
         filter.checked = false;
@@ -133,7 +142,7 @@ export class UserlistComponent implements OnInit {
     });
   }
 
-  filterValues(filter) {
+  filterValues(filter: FilterOption) {
     switch (filter.value) {
       case 0:
         filter.checked = !filter.checked;
@@ -178,19 +187,17 @@ export class UserlistComponent implements OnInit {
     }
   }
 
-  orderArray(keyToSearchBy, toggledOn) {
+  orderArray(keyToSearchBy: keyof GuildMember, toggledOn: boolean) {
     if (toggledOn) {
       this.filteredList.sort((a, b) => {
-        let nameA = a[keyToSearchBy];
-        let nameB = b[keyToSearchBy];
+        const nameA = a[keyToSearchBy];
+        const nameB = b[keyToSearchBy];
 
         if (typeof nameA === 'string' && typeof nameB === 'string') {
-          nameA = nameA.toLocaleUpperCase();
-          nameB = nameB.toLocaleUpperCase();
-          return this.filterTextAStart(nameA, nameB);
+          return this.filterTextAStart(nameA.toLocaleUpperCase(), nameB.toLocaleUpperCase());
         }
 
-        return this.filterHighestInts(nameA, nameB);
+        return this.filterHighestInts(Number(nameA), Number(nameB));
       });
 
       return;
@@ -206,7 +213,7 @@ export class UserlistComponent implements OnInit {
    * @param nameA
    * @param nameB
    */
-  private filterTextAStart(nameA, nameB) {
+  private filterTextAStart(nameA: string, nameB: string) {
     if (nameA < nameB) {
       return -1;
     }
@@ -222,7 +229,7 @@ export class UserlistComponent implements OnInit {
    * @param int1
    * @param int2
    */
-  private filterHighestInts(int1, int2) {
+  private filterHighestInts(int1: number, int2: number) {
     if (int1 < int2) {
       return 1;
     }

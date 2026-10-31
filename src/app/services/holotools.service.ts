@@ -1,5 +1,6 @@
 import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
+import { CurrentlyLiveModel } from "../hololive/components/live-bubble-modal/curretly-live.model";
 
 @Injectable({
   providedIn: "root",
@@ -7,10 +8,10 @@ import { Injectable } from "@angular/core";
 export class HolotoolsService {
   private holoToolsUrl = "https://api.holotools.app/v1/";
 
-  constructor(public httpClient: HttpClient) {}
+  private readonly httpClient = inject(HttpClient);
 
   getHololiveLives() {
     const route = `${this.holoToolsUrl}/live`;
-    return this.httpClient.get(route);
+    return this.httpClient.get<CurrentlyLiveModel>(route);
   }
 }

@@ -1,18 +1,18 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, inject, OnInit } from "@angular/core";
 import { HolotoolsService } from "./../../../services/holotools.service";
-import { CurrentlyLiveModel } from "./curretly-live.model";
+import { CurrentlyLiveModel, CurrentlyLiveStream } from "./curretly-live.model";
 
 @Component({
   selector: "app-live-bubble-modal",
+  standalone: true,
   templateUrl: "./live-bubble-modal.component.html",
   styleUrls: ["./live-bubble-modal.component.scss"],
 })
 export class LiveBubbleModalComponent implements OnInit {
+  private readonly holotoolsService = inject(HolotoolsService);
   public loading = true;
-  public currentlyLive: CurrentlyLiveModel;
-  public selectedLivers = [];
-
-  constructor(private holotoolsService: HolotoolsService) {}
+  public currentlyLive?: CurrentlyLiveModel;
+  public selectedLivers: CurrentlyLiveStream[] = [];
 
   ngOnInit() {
     this.holotoolsService.getHololiveLives().subscribe((information: CurrentlyLiveModel) => {
@@ -21,7 +21,7 @@ export class LiveBubbleModalComponent implements OnInit {
     });
   }
   
-  handleImageSelected(object) {
+  handleImageSelected(object: CurrentlyLiveStream) {
     const foundIndex = this.selectedLivers.findIndex((liver) => liver.id === object.id);
     if (foundIndex != -1) {
       this.selectedLivers.splice(foundIndex, 1);
@@ -34,7 +34,7 @@ export class LiveBubbleModalComponent implements OnInit {
     this.selectedLivers = [];
   }
 
-  findImageSelected(currentStream) {
+  findImageSelected(currentStream: CurrentlyLiveStream) {
     const foundIndex = this.selectedLivers.findIndex(
       (liver) => liver.id === currentStream.id
     );

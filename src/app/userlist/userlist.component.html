@@ -11,33 +11,43 @@
     </div>
   </div>
 
-  <div class="row marginBottom" *ngIf="filtersShowing">
-    <div class="col" *ngFor="let filter of filterBar">
-      <mat-slide-toggle [checked]="filter.checked" (toggleChange)="filterValues(filter)">{{filter.text}} </mat-slide-toggle>
+  @if (filtersShowing) {
+    <div class="row marginBottom">
+      @for (filter of filterBar; track filter.value) {
+        <div class="col">
+          <mat-slide-toggle [checked]="filter.checked" (toggleChange)="filterValues(filter)">{{filter.text}}</mat-slide-toggle>
+        </div>
+      }
     </div>
-  </div>
+  }
 
   <div class="row marginBottom">
     <div class="col">
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th *ngFor="let header of headers">{{header}}</th>
+            @for (header of headers; track header) {
+              <th>{{header}}</th>
+            }
           </tr>
         </thead>
 
         <tbody>
-          <tr *ngFor="let user of filteredList">
-            <td *ngIf="showAllTickBox">{{user.Username}}</td>
-            <td>{{user.CharClass}}</td>
-            <td>{{user.CharLevel}}</td>
-            <td>{{user.FamilyName}}</td>
-            <td>{{user.IGN}}</td>
-            <td>{{user.AP}}</td>
-            <td>{{user.AWAP}}</td>
-            <td>{{user.DP}}</td>
-            <td>{{user.RenownScore}}</td>
-          </tr>
+          @for (user of filteredList; track user.IGN) {
+            <tr>
+              @if (showAllTickBox) {
+                <td>{{user.Username}}</td>
+              }
+              <td>{{user.CharClass}}</td>
+              <td>{{user.CharLevel}}</td>
+              <td>{{user.FamilyName}}</td>
+              <td>{{user.IGN}}</td>
+              <td>{{user.AP}}</td>
+              <td>{{user.AWAP}}</td>
+              <td>{{user.DP}}</td>
+              <td>{{user.RenownScore}}</td>
+            </tr>
+          }
         </tbody>
 
       </table>
