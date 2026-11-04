@@ -8,7 +8,6 @@ import { CurrentlyLiveStream } from "../live-bubble-modal/curretly-live.model";
 
 @Component({
   selector: "app-view-screen",
-  standalone: true,
   imports: [MatButtonModule, MatDialogModule],
   templateUrl: "./view-screen.component.html",
   styleUrls: ["./view-screen.component.scss"],

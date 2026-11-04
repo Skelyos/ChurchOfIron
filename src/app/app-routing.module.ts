@@ -1,22 +1,22 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
 
-const routes: Routes = [
+export const routes: Routes = [
   {
     path: "",
-    loadChildren: () => import("./home/home.module").then((m) => m.HomeModule),
+    loadComponent: () => import("./home/home.component").then((m) => m.HomeComponent),
   },
   {
     path: "userlist",
-    loadChildren: () => import("./userlist/user-list.module").then((m) => m.UserListModule),
+    loadComponent: () => import("./userlist/userlist.component").then((m) => m.UserlistComponent),
   },
   {
     path: "nodewar",
-    loadChildren: () => import("./nodewarview/nodewarview.module").then((m) => m.NodewarviewModule),
+    loadComponent: () => import("./nodewarview/nodewarview.component").then((m) => m.NodewarviewComponent),
   },
   {
     path: "hololive",
-    loadChildren: () => import("./hololive/hololive.module").then((m) => m.HololiveModule),
+    loadComponent: () => import("./hololive/components/view-screen/view-screen.component").then((m) => m.ViewScreenComponent),
   },
 ];
 

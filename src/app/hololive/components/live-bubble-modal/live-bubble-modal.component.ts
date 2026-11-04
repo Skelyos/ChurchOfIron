@@ -4,7 +4,6 @@ import { CurrentlyLiveModel, CurrentlyLiveStream } from "./curretly-live.model";
 
 @Component({
   selector: "app-live-bubble-modal",
-  standalone: true,
   templateUrl: "./live-bubble-modal.component.html",
   styleUrls: ["./live-bubble-modal.component.scss"],
 })

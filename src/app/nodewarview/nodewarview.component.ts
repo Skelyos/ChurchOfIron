@@ -6,7 +6,6 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-nodewarview',
-  standalone: true,
   imports: [FormsModule],
   templateUrl: './nodewarview.component.html',
   styleUrls: ['./nodewarview.component.scss']
