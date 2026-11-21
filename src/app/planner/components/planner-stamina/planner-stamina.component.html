@@ -1,0 +1,16 @@
+<div class="stamina-list">
+  @for (row of rows(); track row.game.id) {
+    <div class="stamina-item">
+        <div class="stamina-information">
+          <h3>{{ row.game.name }}</h3>
+          <span> {{ row.game.staminaName }} full capacity in <strong>{{ row.timeToReady }}</strong></span>
+        </div>
+        <mat-form-field appearance="outline" class="compact-field">
+          <mat-label>Current</mat-label>
+          <input matInput type="number" min="0" [max]="row.max" [ngModel]="row.current"
+            (ngModelChange)="currentChange.emit({ game: row.game.id, value: $event })" />
+        </mat-form-field>
+        <span>of {{ row.max }}</span>
+    </div>
+  }
+</div>

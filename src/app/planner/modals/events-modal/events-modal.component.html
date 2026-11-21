@@ -1,0 +1,47 @@
+<h2 mat-dialog-title class="dialog-title">
+  <span>Manage events</span>
+  <mat-checkbox [checked]="keepEventOpen()" (change)="keepEventOpen.set($event.checked)">Keep open</mat-checkbox>
+</h2>
+<mat-dialog-content>
+  <p>Manual events are saved in this browser. No documented public Seelie activity feed is available to connect.</p>
+  <p class="muted">Enter all event times in UTC.</p>
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Game</mat-label>
+    <mat-select [value]="eventGame()" (selectionChange)="selectEventGame($event.value)">
+      @for (game of games; track game.id) {
+        <mat-option [value]="game.id">{{ game.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <form id="planner-event-form" (ngSubmit)="saveEvent()" class="event-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput name="eventName" [(ngModel)]="eventDraft.name" required />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Start (UTC)</mat-label>
+      <input matInput type="datetime-local" step="0.001" name="eventStart" [(ngModel)]="eventDraft.startsAt" required />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>End (UTC)</mat-label>
+      <input matInput type="datetime-local" step="0.001" name="eventEnd" [(ngModel)]="eventDraft.endsAt" required />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="description-field">
+      <mat-label>Description</mat-label>
+      <textarea matInput name="eventDescription" rows="3" [(ngModel)]="eventDraft.description"></textarea>
+    </mat-form-field>
+    @if (eventError()) {
+      <p class="error-message description-field" role="alert">{{ eventError() }}</p>
+    }
+    @if (eventMessage()) {
+      <p class="description-field" role="status">{{ eventMessage() }}</p>
+    }
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions class="dialog-actions">
+  <button mat-button type="button" mat-dialog-close>Close</button>
+  @if (eventDraft.id) {
+    <button mat-button type="button" (click)="cancelEvent()">Cancel edit</button>
+  }
+  <button mat-flat-button class="dialog-positive" type="submit" form="planner-event-form">{{ eventDraft.id ? 'Save changes' : 'Add event' }}</button>
+</mat-dialog-actions>

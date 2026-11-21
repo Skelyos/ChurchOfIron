@@ -1,0 +1,45 @@
+.event-card .event-description {
+  white-space: pre-wrap;
+}
+
+.event-card-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.event-card-heading h3,
+.event-card-heading p,
+.event-date {
+  margin: 0;
+}
+
+.event-card-heading h3 {
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.event-card-heading p {
+  margin-top: 4px;
+  font-size: 0.8rem;
+}
+
+.event-countdown {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border: 1px solid color-mix(in srgb, var(--mat-sys-primary, #bd9bff) 40%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mat-sys-primary, #bd9bff) 14%, transparent);
+  color: var(--mat-sys-primary, #bd9bff);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.event-date {
+  margin-top: 12px;
+  color: var(--mat-sys-on-surface-variant, #b9b6c4);
+  font-size: 0.82rem;
+}

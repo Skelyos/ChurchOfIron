@@ -1,0 +1,44 @@
+<h2 mat-dialog-title class="dialog-title">Stamina settings</h2>
+<mat-dialog-content>
+  <p>Set account levels and maximum stamina for each game. Leave a maximum empty to use its default.</p>
+  <form id="stamina-settings-form" (ngSubmit)="save()">
+    @for (game of games; track game.id) {
+      <section class="game-settings">
+        <h3>{{ game.name }}</h3>
+        <div class="settings-fields">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ game.id === 'endfield' ? 'Authority Level' : 'Account level' }}</mat-label>
+            <input matInput type="number" min="1" [max]="game.id === 'endfield' ? 60 : null" step="1"
+              [name]="game.id + '-level'" [ngModel]="draft[game.id].level"
+              (input)="onLevelInput(game.id, $event)"
+              [attr.aria-label]="game.name + (game.id === 'endfield' ? ' Authority Level' : ' account level')" />
+            @if (game.id !== 'endfield') {
+              <mat-hint>Optional</mat-hint>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Max {{ game.staminaName }}</mat-label>
+            <input matInput type="number" min="1" step="1" [name]="game.id + '-max'"
+              [ngModel]="draft[game.id].max"
+              (ngModelChange)="draft[game.id].max = $event; onMaxChange(game.id, $event)"
+              [attr.aria-label]="game.name + ' maximum ' + game.staminaName" />
+            <mat-hint>
+              @if (defaultMax(game.id); as defaultValue) {
+                Default: {{ defaultValue }}{{ game.id === 'endfield' ? ' (based on Authority Level)' : '' }}
+              } @else {
+                Enter a valid Authority Level.
+              }
+            </mat-hint>
+          </mat-form-field>
+        </div>
+      </section>
+    }
+    @if (error()) {
+      <p class="error-message" role="alert">{{ error() }}</p>
+    }
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions class="dialog-actions">
+  <button mat-button type="button" mat-dialog-close>Cancel</button>
+  <button mat-flat-button class="dialog-positive" type="submit" form="stamina-settings-form">Save settings</button>
+</mat-dialog-actions>

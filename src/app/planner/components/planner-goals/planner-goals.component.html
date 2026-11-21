@@ -1,0 +1,46 @@
+@for (group of groups(); track group.game.id) {
+  <h3>{{ group.game.name }}</h3>
+  @for (goal of group.goals; track goal.id) {
+    @if (entities().get(goal.entityId); as entity) {
+      <mat-card appearance="outlined" class="detail-card goal-card">
+        <mat-card-content>
+          <div class="goal-heading">
+            <div>
+              <strong>{{ entity.name }}</strong>
+              @if (entity.beta) { <span class="muted"> · BETA</span> }
+              <p class="muted">{{ entity.coverage }}</p>
+            </div>
+            <div class="goal-actions">
+              <button mat-button type="button" (click)="edit.emit(goal)">Edit build</button>
+              <button mat-button color="warn" type="button" (click)="remove.emit(goal.id)">Remove</button>
+            </div>
+          </div>
+          @if (!isGoalCompatible(goal, entity)) {
+            <p class="error-message" role="alert">This goal has invalid ranges or no longer matches the source's tracks and is excluded from totals. Edit it, or export it for reference and add a new goal.</p>
+          }
+          <div class="goal-tracks">
+            @for (path of entity.paths; track path.id) {
+              @if (goal.ranges[path.id]; as range) {
+                <span>{{ path.label }}: {{ pathPosition(path, range.current) }} → {{ pathPosition(path, range.target) }}</span>
+              } @else {
+                <span>{{ path.label }}: not included</span>
+              }
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <mat-card appearance="outlined" class="detail-card">
+        <mat-card-header>
+          <mat-card-title>Unresolved saved goal: {{ goal.entityId }}</mat-card-title>
+          <button mat-button color="warn" class="card-action" type="button" (click)="remove.emit(goal.id)">Remove</button>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Its saved ranges are preserved, but costs are unavailable. Export your data before removing it.</p>
+        </mat-card-content>
+      </mat-card>
+    }
+  } @empty {
+    <p class="empty-state">No goals yet for {{ group.game.name }}.</p>
+  }
+}

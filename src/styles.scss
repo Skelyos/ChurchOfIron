@@ -3,3 +3,14 @@
     padding-top: 1rem;
     padding-bottom: 1rem;
 }
+
+.mat-mdc-dialog-actions.dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+.mat-mdc-dialog-actions.dialog-actions .dialog-positive.mat-mdc-button-base {
+    margin-left: auto;
+}

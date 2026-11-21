@@ -1,0 +1,38 @@
+.muted {
+  color: var(--mat-sys-on-surface-variant, #aaa7b4);
+}
+
+.detail-card {
+  margin-top: 12px;
+  border-color: var(--mat-sys-outline-variant, #494650);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--mat-sys-surface-container-low, #29272f) 82%, transparent);
+}
+
+.detail-card mat-card-header {
+  align-items: center;
+}
+
+.detail-card mat-card-content {
+  padding-top: 8px;
+}
+
+.compact-field {
+  width: 110px;
+  margin-bottom: -1.25em;
+}
+
+.compact-field input {
+  text-align: right;
+}
+
+.empty-state {
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--mat-sys-surface-container, #333) 70%, transparent);
+  color: var(--mat-sys-on-surface-variant, #b9b6c4);
+}
+
+.error-message {
+  color: var(--mat-sys-error, #ffb4ab);
+}

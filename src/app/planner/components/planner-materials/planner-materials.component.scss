@@ -1,0 +1,88 @@
+.material-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: 12px;
+}
+
+.material-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--mat-sys-outline-variant, #494650);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--mat-sys-surface-container-low, #29272f) 82%, transparent);
+}
+
+.material-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+}
+
+.material-icon {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: color-mix(in srgb, var(--mat-sys-surface-container, #333) 70%, transparent);
+}
+
+.material-icon-placeholder {
+  display: grid;
+  place-items: center;
+  color: var(--mat-sys-on-surface-variant, #b9b6c4);
+  font-size: 0.65rem;
+}
+
+.material-heading h4 {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.material-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 8px 12px;
+  background: color-mix(in srgb, var(--mat-sys-primary, #bd9bff) 20%, transparent);
+  font-size: 0.85rem;
+}
+
+.material-card.done .material-summary {
+  background: color-mix(in srgb, var(--mat-sys-primary, #bd9bff) 8%, transparent);
+}
+
+.material-details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+}
+
+.material-characters {
+  display: flex;
+  flex: 1 1 130px;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: 6px;
+}
+
+.material-characters span {
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--mat-sys-primary, #bd9bff) 12%, transparent);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+.inventory-field {
+  display: inline-block;
+  width: 100px;
+  vertical-align: middle;
+}

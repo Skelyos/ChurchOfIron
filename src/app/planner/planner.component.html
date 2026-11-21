@@ -1,0 +1,67 @@
+<main class="planner">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Game progression</p>
+      <h1>Planner</h1>
+      <p class="page-description">Track upgrade goals, materials, events, and stamina in one place.</p>
+    </div>
+    <div class="page-actions">
+      <button mat-stroked-button type="button" (click)="export()">Export planner</button>
+      <button mat-flat-button type="button" (click)="plannerFileInput.click()">Import planner</button>
+      <input #plannerFileInput type="file" accept="application/json" (change)="import($event)" hidden />
+    </div>
+  </header>
+
+  <mat-button-toggle-group
+    class="game-filter"
+    aria-label="Filter planner by game"
+    [value]="filter()"
+    (change)="filter.set($event.value)"
+  >
+    <mat-button-toggle value="all">All games</mat-button-toggle>
+    @for (g of games; track g.id) {
+      <mat-button-toggle [value]="g.id">{{ g.name }}</mat-button-toggle>
+    }
+  </mat-button-toggle-group>
+
+  <div class="planner-actions">
+    <button mat-flat-button type="button" (click)="openCharacterDialog()">Add character</button>
+    <button mat-stroked-button type="button" (click)="openEventsDialog()">Manage events</button>
+  </div>
+  @if (catalogError()) {
+    <p class="error-message" role="alert">{{ catalogError() }}</p>
+  }
+  @if (eventNotice()) {
+    <p role="status">{{ eventNotice() }}</p>
+  }
+
+  <div class="planner-grid">
+    <app-planner-panel class="goals-card" heading="Goals" subtitle="Character builds by game.">
+      <app-planner-goals [groups]="goalsByGame()" [entities]="entities()"
+        (edit)="openCharacterDialog($event)" (remove)="store.removeGoal($event)" />
+    </app-planner-panel>
+
+    <app-planner-panel class="events-card" heading="Events" subtitle="Manual events shown in UTC.">
+      <app-planner-events [events]="eventDisplays()"
+        (edit)="openEventsDialog($event)" (remove)="store.removeEvent($event)" />
+    </app-planner-panel>
+
+    <app-planner-panel class="materials-card" heading="Materials" subtitle="Materials grouped by the characters that need them.">
+      <app-planner-materials [groups]="totalsByGame()" [materials]="catalog.materials()" [inventory]="store.inventory()"
+        [unresolvedInventory]="unresolvedInventory()"
+        (inventoryChange)="store.setInventory($event.materialId, $event.amount)" />
+    </app-planner-panel>
+
+    <app-planner-panel class="stamina-card" heading="Stamina"
+      subtitle="Track current energy and estimate when it will reach full capacity.">
+      <button panel-actions mat-icon-button type="button" aria-label="Stamina settings" (click)="openStaminaSettings()">
+        <svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M19.07 4.93l-2.12 2.12M7.05 16.95l-2.12 2.12" />
+        </svg>
+      </button>
+      <app-planner-stamina [rows]="staminaDisplays()" (currentChange)="store.setStamina($event.game, $event.value)" />
+    </app-planner-panel>
+  </div>
+
+</main>

@@ -1,0 +1,35 @@
+.goal-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.goal-heading p {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+}
+
+.goal-actions {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.goal-tracks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.goal-tracks span {
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--mat-sys-primary, #bd9bff) 12%, transparent);
+  font-size: 0.8rem;
+}
+
+.card-action {
+  margin-left: auto;
+}

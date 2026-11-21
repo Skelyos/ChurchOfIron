@@ -1,0 +1,87 @@
+<h2 mat-dialog-title class="dialog-title">
+  <span>{{ editingGoalId() ? 'Edit character build' : 'Add character' }}</span>
+  <mat-checkbox [checked]="keepCharacterOpen()" (change)="keepCharacterOpen.set($event.checked)">Keep open</mat-checkbox>
+</h2>
+<mat-dialog-content>
+  @if (characterMessage()) {
+    <p role="status">{{ characterMessage() }}</p>
+  }
+  @if (selectedEntity(); as entity) {
+    <h3>{{ entity.name }} @if (entity.beta) { · BETA }</h3>
+    @if (entity.attributes?.length) {
+      <p>{{ entity.attributes?.join(' · ') }}</p>
+    }
+    <p class="muted">{{ entity.coverage }}</p>
+    <p>Set the current and target position for each upgrade track. Character level starts at 1 with no partial EXP.</p>
+    @for (path of entity.paths; track path.id) {
+      @if (draftRanges()[path.id]; as range) {
+        <div class="range-row">
+          <strong>{{ path.label }}</strong>
+          <mat-form-field appearance="outline" class="compact-field">
+            <mat-label>Current</mat-label>
+            <input matInput type="number" [min]="path.id === characterLevelPath ? 1 : 0"
+              [max]="path.steps.length + (path.id === characterLevelPath ? 1 : 0)"
+              [ngModel]="range.current + (path.id === characterLevelPath ? 1 : 0)"
+              (ngModelChange)="setDraftRange(path.id, 'current', path.id === characterLevelPath && $event !== null ? $event - 1 : $event, path.steps.length)" />
+          </mat-form-field>
+          <span class="range-arrow" aria-hidden="true">→</span>
+          <mat-form-field appearance="outline" class="compact-field">
+            <mat-label>Target</mat-label>
+            <input matInput type="number" [min]="path.id === characterLevelPath ? 1 : 0"
+              [max]="path.steps.length + (path.id === characterLevelPath ? 1 : 0)"
+              [ngModel]="range.target + (path.id === characterLevelPath ? 1 : 0)"
+              (ngModelChange)="setDraftRange(path.id, 'target', path.id === characterLevelPath && $event !== null ? $event - 1 : $event, path.steps.length)" />
+          </mat-form-field>
+          <small class="muted">{{ pathPosition(path, range.current) }} → {{ pathPosition(path, range.target) }} ({{ path.steps.length }} steps)</small>
+        </div>
+      } @else {
+        <p class="muted">New track {{ path.label }} is not included in this saved goal. Add a new goal to use it.</p>
+      }
+    }
+  } @else {
+    <div class="notice-list">
+      <p>Character data from Encore.moe, Nanoka and Endfield Assets. Weapon planning is not included.</p>
+      <p>ZZZ data uses a beta dataset: all ZZZ characters and costs may change, including released characters.</p>
+      <p>Endfield supports character level and promotion only. Its source may include unavailable characters; release status is unverified.</p>
+    </div>
+    <div class="source-status">
+      <span>ZZZ: {{ catalog.status().zzz }}</span>
+      <span>WuWa: {{ catalog.status().wuwa }}</span>
+      <span>Endfield: {{ catalog.status().endfield }}</span>
+      <button mat-button type="button" (click)="data.reloadCatalog()">Retry data sources</button>
+    </div>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Search characters</mat-label>
+      <input matInput type="search" placeholder="Search by name" [ngModel]="search()" (ngModelChange)="search.set($event)" />
+    </mat-form-field>
+    @if (characterLoading()) {
+      <p role="status">Loading character build…</p>
+    }
+    <div class="catalog-list">
+      @for (entry of catalogMatches(); track entry.id) {
+        <button mat-stroked-button type="button" class="catalog-entry" [disabled]="characterLoading()" (click)="selectCharacter(entry)">
+          <span>
+            <small>{{ gameName(entry.game) }} @if (entry.beta) { · BETA }</small>
+            <strong>{{ entry.name }}</strong>
+            @if (duplicateName(entry)) { <small>{{ entry.id }}</small> }
+          </span>
+          <span aria-hidden="true">+</span>
+        </button>
+      } @empty {
+        <p class="muted">No matching characters.</p>
+      }
+    </div>
+  }
+  @if (characterError()) {
+    <p class="error-message" role="alert">{{ characterError() }}</p>
+  }
+</mat-dialog-content>
+<mat-dialog-actions class="dialog-actions">
+  <button mat-button type="button" mat-dialog-close>Cancel</button>
+  @if (selectedEntity() && !editingGoalId()) {
+    <button mat-button type="button" (click)="selectedEntity.set(null); characterError.set(''); characterMessage.set('')">Back</button>
+  }
+  @if (selectedEntity()) {
+    <button mat-flat-button class="dialog-positive" type="button" (click)="saveCharacter()">{{ editingGoalId() ? 'Save build' : 'Add goal' }}</button>
+  }
+</mat-dialog-actions>

@@ -18,6 +18,10 @@ export const routes: Routes = [
     path: "hololive",
     loadComponent: () => import("./hololive/components/view-screen/view-screen.component").then((m) => m.ViewScreenComponent),
   },
+  {
+    path: "planner",
+    loadComponent: () => import("./planner/planner.component").then((m) => m.PlannerComponent),
+  },
 ];
 
 @NgModule({

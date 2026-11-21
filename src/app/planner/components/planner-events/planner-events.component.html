@@ -1,0 +1,23 @@
+@for (item of events(); track item.event.id) {
+  <mat-card appearance="outlined" class="detail-card event-card">
+    <mat-card-content>
+      <div class="event-card-heading">
+        <div>
+          <h3>{{ item.event.name }}</h3>
+          <p class="muted">{{ item.gameName }} · Manual</p>
+        </div>
+        <span class="event-countdown">{{ item.countdown }}</span>
+      </div>
+      <p class="event-date">{{ item.start }} – {{ item.end }}</p>
+      @if (item.event.description) {
+        <p class="event-description">{{ item.event.description }}</p>
+      }
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <button mat-button type="button" (click)="edit.emit(item.event)">Edit</button>
+      <button mat-button color="warn" type="button" (click)="remove.emit(item.event.id)">Delete</button>
+    </mat-card-actions>
+  </mat-card>
+} @empty {
+  <p class="empty-state">No events for this selection.</p>
+}

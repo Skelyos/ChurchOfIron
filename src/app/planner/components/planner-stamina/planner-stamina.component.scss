@@ -1,0 +1,28 @@
+.stamina-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  gap: 12px;
+}
+
+.stamina-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 12px;
+  border: 1px solid var(--mat-sys-outline-variant, #494650);
+  border-radius: 12px;
+}
+
+.stamina-information {
+  margin-bottom: 8px;
+}
+
+.stamina-item > div:first-child {
+  flex: 1 1 100%;
+}
+
+.stamina-item h3,
+.stamina-item p {
+  margin: 0;
+}
