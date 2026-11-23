@@ -40,6 +40,10 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ]
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true
             }
           }
         },
@@ -49,10 +53,11 @@
             "buildTarget": "church-of-iron:build"
           },
           "configurations": {
-            "production": {
-              "buildTarget": "church-of-iron:build:production"
+            "development": {
+              "buildTarget": "church-of-iron:build:development"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n",

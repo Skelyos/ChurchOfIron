@@ -1,5 +1,5 @@
 import { Goal, PlannerEntity } from '../models/planner.model';
-import { goalCost, isGoalCompatible, requirements, totalCost } from './calc';
+import { goalCost, isGoalCompatible, pathCost, requirements, totalCost } from './calc';
 import { currentStamina, endfieldMax, formatStaminaDuration, minutesUntil, staminaRules, STAMINA_RULES } from './stamina';
 import { characterLevelPath } from '../data/character-experience';
 
@@ -37,8 +37,27 @@ describe('planner calc', () => {
     expect(isGoalCompatible({ ...goal, ranges: { ...goal.ranges, 'character-level': { current: 2, target: 3 } } }, updated)).toBeFalse();
     expect(isGoalCompatible({ ...goal, ranges: { 'character-level': { current: 0, target: 1 } } }, updated)).toBeFalse();
   });
+  it('preserves legacy Endfield goals when ability skill paths are added', () => {
+    const endfield: PlannerEntity = {
+      id: 'endfield:unit', game: 'endfield', name: 'Unit', kind: 'character',
+      paths: [
+        { id: 'promotion', label: 'Promotion', steps: [{ label: 'Promotion 1', cost: { promotion: 2 } }] },
+        { id: 'ability:unit_NormalSkill', label: 'Battle Skill', steps: [{ label: 'Level 2', cost: { skill: 3 } }] },
+      ],
+    };
+    const legacy: Goal = {
+      id: 'legacy', entityId: endfield.id, game: 'endfield',
+      ranges: { promotion: { current: 0, target: 1 } },
+    };
+    expect(isGoalCompatible(legacy, endfield)).toBeTrue();
+    expect(goalCost(legacy, endfield)).toEqual({ promotion: 2 });
+    expect(isGoalCompatible({
+      ...legacy, ranges: { ...legacy.ranges, 'ability:unit_NormalSkill': { current: 0, target: 2 } },
+    }, endfield)).toBeFalse();
+  });
   it('sums steps in [current, target)', () => {
     expect(goalCost(goal, entity)).toEqual({ a: 3, c: 5 });
+    expect(pathCost(goal, entity.paths[0])).toEqual({ a: 3, c: 5 });
   });
 
   it('clamps the target to available steps', () => {

@@ -1,45 +1,68 @@
 @if (!groups().length) {
   <p class="empty-state">No material totals available. Unresolved goals are not included.</p>
 }
-<p>ZZZ totals use beta data and may change. EXP plans minimize waste before additional farming, then prefer higher tiers.
-  EXP is rounded separately at each level cap. ZZZ conversion and WuWa refund rules are unverified, so refunds are not included.</p>
 @for (group of displayGroups(); track group.game.id) {
   <h3>{{ group.game.name }}</h3>
-  @for (total of group.experienceTotals; track total.materialId) {
-    <p>{{ experienceName(total.materialId) }} needed: {{ total.required }} (before item rounding).</p>
-  }
-  <div class="material-grid">
-    @for (row of group.rows; track row.materialId) {
-      <article class="material-card" [class.done]="row.missing === 0">
-        <div class="material-heading">
-          @if (materialIcon(row.materialId); as icon) {
-            <img class="material-icon" [src]="icon" alt="" loading="lazy"
-              (error)="markIconUnavailable(icon)" />
-          } @else {
-            <span class="material-icon material-icon-placeholder" aria-hidden="true">No icon</span>
-          }
-          <h4>{{ materialName(row.materialId) }}</h4>
-        </div>
-        <div class="material-summary">
-          <span>Missing <strong>{{ row.missing }}</strong></span>
-          <span>{{ experienceItemIds.has(row.materialId) ? 'Suggested' : 'Required' }} <strong>{{ row.required }}</strong></span>
-        </div>
-        <div class="material-details">
-          <mat-form-field appearance="outline" class="compact-field inventory-field">
-            <mat-label>Owned</mat-label>
-            <input matInput type="number" min="0" [ngModel]="row.owned"
-              [attr.aria-label]="'Owned ' + materialName(row.materialId)"
-              (ngModelChange)="setInventory(row.materialId, $event)" />
-          </mat-form-field>
-          <div class="material-characters" aria-label="Character requirements">
-            @for (character of row.characters; track character.id) {
-              <span>{{ character.name }} <strong>×{{ character.required }}</strong></span>
+  @for (section of group.sections; track section.id) {
+    <section class="material-section">
+      <h4 class="material-section-heading">{{ section.label }}</h4>
+      @for (total of section.experienceTotals; track total.materialId) {
+        <p>{{ experienceName(total.materialId) }} needed: {{ total.required | number }}.</p>
+      }
+      <div class="material-grid">
+        @for (row of section.rows; track row.materialId) {
+          <article class="material-card" [class.done]="row.missing === 0">
+            <div class="material-heading">
+              @if (materialIcon(row.materialId); as icon) {
+                @if (materials().get(row.materialId)?.iconSprite) {
+                  <span class="material-icon sprite-icon" [class.tier-border]="tierBorderColor(row.materialId) !== undefined"
+                    [style.border-color]="tierBorderColor(row.materialId)"
+                    [class.sprite-sheet]="spriteLayouts().get(icon) !== undefined && spriteLayouts().get(icon) !== null">
+                    <img #sprite [src]="icon" alt="" loading="lazy" [class.sprite-60]="spriteLayouts().get(icon) === 60"
+                      [class.sprite-120]="spriteLayouts().get(icon) === 120"
+                      (load)="recordSpriteLayout(icon, sprite)" (error)="markIconUnavailable(icon)" />
+                  </span>
+                } @else {
+                  <img class="material-icon" [class.tier-border]="tierBorderColor(row.materialId) !== undefined"
+                    [style.border-color]="tierBorderColor(row.materialId)" [src]="icon" alt="" loading="lazy"
+                    (error)="markIconUnavailable(icon)" />
+                }
+              } @else {
+                <span class="material-icon material-icon-placeholder"
+                  [class.tier-border]="tierBorderColor(row.materialId) !== undefined"
+                  [style.border-color]="tierBorderColor(row.materialId)" aria-hidden="true">No icon</span>
+              }
+              <h4>{{ materialName(row.materialId) }}</h4>
+            </div>
+            <div class="material-summary">
+              <span>Missing <strong>{{ row.missing | number }}</strong></span>
+              <span>{{ experienceItemIds.has(row.materialId) ? 'Suggested' : 'Required' }} <strong>{{ row.required | number }}</strong></span>
+            </div>
+            @if (row.breakdown?.length) {
+              <div class="material-breakdown" aria-label="Requirements by section">
+                @for (part of row.breakdown; track part.sectionId) {
+                  <span>{{ part.sectionLabel }} <strong>{{ part.required | number }}</strong></span>
+                }
+              </div>
             }
-          </div>
-        </div>
-      </article>
-    }
-  </div>
+            <div class="material-details">
+              <mat-form-field appearance="outline" class="compact-field inventory-field">
+                <mat-label>Owned</mat-label>
+                <input matInput type="number" min="0" [ngModel]="row.owned"
+                  [attr.aria-label]="'Owned ' + materialName(row.materialId)"
+                  (ngModelChange)="setInventory(row.materialId, $event)" />
+              </mat-form-field>
+              <div class="material-characters" aria-label="Character requirements">
+                @for (character of row.characters; track character.id) {
+                  <span>{{ character.name }} <strong>×{{ character.required | number }}</strong></span>
+                }
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
 }
 @if (unresolvedInventory().length) {
   <h3>Unresolved saved inventory</h3>

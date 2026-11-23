@@ -2,7 +2,7 @@ import { Goal, Inventory, MaterialCost, MaterialRequirement, PlannerEntity, Upgr
 import { CHARACTER_LEVEL_PATH } from '../data/character-experience';
 
 export function pathPosition(path: UpgradePath, position: number): string {
-  if (path.id === CHARACTER_LEVEL_PATH) return `Level ${position + 1}`;
+  if (path.levelBased) return `Level ${position + 1}`;
   return position === 0 ? 'start' : path.steps[position - 1]?.label ?? 'unavailable';
 }
 
@@ -10,7 +10,9 @@ export function isGoalCompatible(goal: Goal, entity: PlannerEntity): boolean {
   if (!goal.ranges || typeof goal.ranges !== 'object') return false;
   const paths = new Map(entity.paths.map((path) => [path.id, path]));
   const ranges = Object.entries(goal.ranges);
-  return entity.paths.every((path) => path.id === CHARACTER_LEVEL_PATH || !!goal.ranges[path.id]) &&
+  return entity.paths.every((path) => path.id === CHARACTER_LEVEL_PATH ||
+      (goal.game === 'endfield' && path.id.startsWith('ability:') && !goal.ranges[path.id]) ||
+      !!goal.ranges[path.id]) &&
     ranges.every(([id, range]) => {
       const path = paths.get(id);
       return !!path && !!range && Number.isInteger(range.current) && Number.isInteger(range.target) &&
@@ -25,17 +27,23 @@ function addCost(into: MaterialCost, cost: MaterialCost): void {
   }
 }
 
+export function pathCost(goal: Goal, path: UpgradePath): MaterialCost {
+  const total: MaterialCost = {};
+  const range = goal.ranges[path.id];
+  if (!range) return total;
+  const from = Math.max(0, range.current);
+  const to = Math.min(path.steps.length, range.target);
+  for (let i = from; i < to; i++) {
+    addCost(total, path.steps[i].cost);
+  }
+  return total;
+}
+
 /** Total materials needed for a single goal, summing steps in [current, target) of each path. */
 export function goalCost(goal: Goal, entity: PlannerEntity): MaterialCost {
   const total: MaterialCost = {};
   for (const path of entity.paths) {
-    const range = goal.ranges[path.id];
-    if (!range) continue;
-    const from = Math.max(0, range.current);
-    const to = Math.min(path.steps.length, range.target);
-    for (let i = from; i < to; i++) {
-      addCost(total, path.steps[i].cost);
-    }
+    addCost(total, pathCost(goal, path));
   }
   return total;
 }

@@ -55,13 +55,9 @@
     <app-planner-panel class="stamina-card" heading="Stamina"
       subtitle="Track current energy and estimate when it will reach full capacity.">
       <button panel-actions mat-icon-button type="button" aria-label="Stamina settings" (click)="openStaminaSettings()">
-        <svg aria-hidden="true" focusable="false" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M19.07 4.93l-2.12 2.12M7.05 16.95l-2.12 2.12" />
-        </svg>
+        <mat-icon>settings</mat-icon>
       </button>
       <app-planner-stamina [rows]="staminaDisplays()" (currentChange)="store.setStamina($event.game, $event.value)" />
     </app-planner-panel>
   </div>
-
 </main>

@@ -19,6 +19,7 @@ export class CatalogService {
   private readonly pending = new Map<string, Promise<PlannerEntity>>();
   private endfieldLoadedVersion: string | null = null;
   private endfieldLevels: UpgradePath | null = null;
+  private endfieldCharacterTranslations: unknown | null = null;
 
   private async json(url: string): Promise<unknown> {
     const response = await fetch(url);
@@ -62,6 +63,7 @@ export class CatalogService {
         this.entities.update((existing) => new Map([...existing].filter(([, entity]) => entity.game !== game)));
         this.endfieldLoadedVersion = version;
         this.endfieldLevels = levelPath;
+        this.endfieldCharacterTranslations = names;
         this.status.update((s) => ({ ...s, endfield: `Loaded Endfield Assets ${version}; release status unverified` }));
         return;
       }
@@ -114,7 +116,10 @@ export class CatalogService {
         throw new Error('Endfield source changed; reload the catalog');
       }
       if (!this.endfieldLevels) throw new Error('Endfield level data is unavailable; reload the catalog');
-      return this.saveEntity(parseEndfieldDetail(entry, data, this.endfieldLevels));
+      if (!this.endfieldCharacterTranslations) throw new Error('Endfield character translations are unavailable; reload the catalog');
+      return this.saveEntity(parseEndfieldDetail(
+        entry, data, this.endfieldLevels, this.endfieldCharacterTranslations,
+      ));
     }
     const url = entry.game === 'zzz'
       ? `${ZZZ_BASE}/en/character/${id}.json`

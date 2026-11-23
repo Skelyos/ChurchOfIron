@@ -13,6 +13,9 @@ export interface Material {
   name: string;
   game: GameId;
   iconUrl?: string;
+  iconSprite?: true;
+  family?: string;
+  tier?: number;
 }
 
 /** One upgrade step, e.g. "Ascension 1 -> 2" or "Skill Lv 3 -> 4". */
@@ -25,6 +28,7 @@ export interface UpgradeStep {
 export interface UpgradePath {
   id: string;
   label: string;
+  levelBased?: true;
   steps: UpgradeStep[];
 }
 

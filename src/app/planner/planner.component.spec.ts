@@ -7,7 +7,7 @@ import { PlannerComponent } from './planner.component';
 import { CatalogService } from './services/catalog-service';
 import { EMPTY_STATE, PlannerStorage } from './services/planner-storage';
 import { CatalogEntry } from './data/api-catalog';
-import { PlannerEntity } from './models/planner.model';
+import { Material, PlannerEntity } from './models/planner.model';
 import { CharacterModalComponent } from './modals/character-modal/character-modal.component';
 import { EventsModalComponent } from './modals/events-modal/events-modal.component';
 import { StaminaSettingsModalComponent } from './modals/stamina-settings-modal/stamina-settings-modal.component';
@@ -187,14 +187,14 @@ describe('planner dialogs', () => {
     const cards = Array.from(fixture.nativeElement.querySelectorAll('.material-card')) as HTMLElement[];
     expect(cards.filter((card) => card.textContent?.includes('Investigator Log')).length).toBe(3);
     const card = cards.find((item) => item.textContent?.includes('Trainee Investigator Log'))!;
-    expect(card.textContent).toContain('Required 2');
+    expect(card.textContent).toContain('Suggested 2');
     expect(card.textContent).toContain('Missing 2');
     const owned = card.querySelector<HTMLInputElement>('[aria-label="Owned Trainee Investigator Log"]')!;
     owned.value = '1';
     owned.dispatchEvent(new Event('input'));
     fixture.detectChanges();
     expect(card.textContent).toContain('Missing 1');
-    expect(card.textContent).toContain('Required 2');
+    expect(card.textContent).toContain('Suggested 2');
     expect(component.store.inventory()['zzz:300001']).toBe(1);
 
     component.store.addGoal(leveledEntity, { promotion: { current: 0, target: 1 } });
@@ -208,6 +208,61 @@ describe('planner dialogs', () => {
     clickText(overlay, 'Save build');
     tick(500);
     expect(component.store.goals()[1].ranges['character-level']).toEqual({ current: 0, target: 0 });
+    fixture.destroy();
+  }));
+
+  it('displays and saves skill levels while preserving promotion positions and costs', fakeAsync(() => {
+    const fixture = TestBed.createComponent(PlannerComponent);
+    const component = fixture.componentInstance;
+    const leveledEntity: PlannerEntity = {
+      ...entity,
+      paths: [...entity.paths, {
+        id: 'skill:basic', label: 'Basic skill', levelBased: true,
+        steps: Array.from({ length: 11 }, (_, i) => ({ label: `Level ${i + 2}`, cost: { 'zzz:1': i + 1 } })),
+      }],
+    };
+    spyOn(component.catalog, 'loadEntity').and.resolveTo(leveledEntity);
+    component.catalog.entities.set(new Map([[entity.id, leveledEntity]]));
+    fixture.detectChanges();
+    clickText(fixture.nativeElement, 'Add character');
+    flushMicrotasks();
+    fixture.detectChanges();
+    overlay.querySelector<HTMLButtonElement>('.catalog-entry')?.click();
+    flushMicrotasks();
+    fixture.detectChanges();
+
+    const rows = overlay.querySelectorAll<HTMLElement>('.range-row');
+    const promotion = rows[0].querySelectorAll<HTMLInputElement>('input');
+    const skill = rows[1].querySelectorAll<HTMLInputElement>('input');
+    expect([promotion[0].min, promotion[0].value, promotion[1].max]).toEqual(['0', '0', '2']);
+    expect([skill[0].min, skill[0].value, skill[1].max, skill[1].value]).toEqual(['1', '1', '12', '12']);
+    skill[0].value = '0';
+    skill[0].dispatchEvent(new Event('input'));
+    skill[1].value = '13';
+    skill[1].dispatchEvent(new Event('input'));
+    expect(characterModal().draftRanges()['skill:basic']).toEqual({ current: 0, target: 11 });
+    skill[0].value = '2';
+    skill[0].dispatchEvent(new Event('input'));
+    skill[1].value = '4';
+    skill[1].dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(rows[1].textContent).toContain('Level 2 → Level 4');
+    expect(characterModal().draftRanges()['skill:basic']).toEqual({ current: 1, target: 3 });
+    clickText(overlay, 'Add goal');
+    tick(500);
+    fixture.detectChanges();
+    expect(component.store.goals()[0].ranges['skill:basic']).toEqual({ current: 1, target: 3 });
+    expect(component.store.requirementsFor('zzz')[0].required).toBe(10);
+    expect(fixture.nativeElement.textContent).toContain('Basic skill: Level 2 → Level 4');
+
+    clickText(fixture.nativeElement, 'Edit build');
+    flushMicrotasks();
+    fixture.detectChanges();
+    const editedSkill = overlay.querySelectorAll<HTMLElement>('.range-row')[1].querySelectorAll<HTMLInputElement>('input');
+    expect([editedSkill[0].value, editedSkill[1].value]).toEqual(['2', '4']);
+    clickText(overlay, 'Save build');
+    tick(500);
+    expect(component.store.goals()[0].ranges['skill:basic']).toEqual({ current: 1, target: 3 });
     fixture.destroy();
   }));
 
@@ -634,7 +689,7 @@ describe('planner dialogs', () => {
     component.store.addGoal({ ...other, id: 'zzz:missing' });
     fixture.detectChanges();
 
-    let rows = component.totalsByGame()[0].rows;
+    let rows = component.totalsByGame()[0].sections[0].rows;
     expect(rows.length).toBe(1);
     expect(rows[0].required).toBe(9);
     expect(rows[0].characters).toEqual([
@@ -658,10 +713,10 @@ describe('planner dialogs', () => {
     input.dispatchEvent(new Event('input'));
     fixture.detectChanges();
     expect(component.store.inventory()['zzz:1']).toBe(6);
-    expect(component.totalsByGame()[0].rows[0].missing).toBe(3);
+    expect(component.totalsByGame()[0].sections[0].rows[0].missing).toBe(3);
 
     component.store.removeGoal(component.store.goals()[1].id);
-    rows = component.totalsByGame()[0].rows;
+    rows = component.totalsByGame()[0].sections[0].rows;
     expect(rows[0].required).toBe(6);
     expect(rows[0].missing).toBe(0);
     expect(rows[0].characters[0].required).toBe(2);
@@ -675,7 +730,99 @@ describe('planner dialogs', () => {
     fixture.detectChanges();
     clickText(fixture.nativeElement.querySelector('.goal-card'), 'Remove');
     fixture.detectChanges();
-    expect(component.totalsByGame()[0].rows[0].required).toBe(4);
+    expect(component.totalsByGame()[0].sections[0].rows[0].required).toBe(4);
+    fixture.destroy();
+  });
+
+  it('groups materials by progression and family, keeps tier order stable, and counts shared inventory once', () => {
+    const fixture = TestBed.createComponent(PlannerComponent);
+    const component = fixture.componentInstance;
+    const root = fixture.nativeElement as HTMLElement;
+    const tiered: PlannerEntity = {
+      id: 'zzz:tiered', game: 'zzz', name: 'Tiered character', kind: 'character',
+      paths: [
+        { id: 'character-level', label: 'Character level', steps: [{ label: 'Level 2', cost: {
+          'zzz:101': 3, 'zzz:102': 2, 'zzz:103': 1, 'zzz:201': 4, 'zzz:50': 100,
+        } }] },
+        { id: 'promotion', label: 'Promotion', steps: [{ label: 'Promotion 1', cost: { 'zzz:50': 200, 'zzz:301': 1 } }] },
+        { id: 'core', label: 'Core skill', steps: [{ label: 'Core 1', cost: { 'zzz:501': 1 } }] },
+        { id: 'skill:basic', label: 'Basic skill', steps: [{ label: 'Skill level 1', cost: { 'zzz:50': 300, 'zzz:401': 1 } }] },
+      ],
+    };
+    const materials = [
+      ['zzz:101', { id: 'zzz:101', game: 'zzz', name: 'Material A low', family: 'material a', tier: 2 }],
+      ['zzz:102', { id: 'zzz:102', game: 'zzz', name: 'Material A medium', family: 'material a', tier: 3 }],
+      ['zzz:103', {
+        id: 'zzz:103', game: 'zzz', name: 'Material A high', family: 'material a', tier: 4,
+        iconUrl: 'https://example.test/material-a-high.png',
+      }],
+      ['zzz:201', { id: 'zzz:201', game: 'zzz', name: 'Material B high', family: 'material b', tier: 4 }],
+      ['zzz:50', { id: 'zzz:50', game: 'zzz', name: 'Denny', family: 'denny', tier: 2 }],
+      ['zzz:301', {
+        id: 'zzz:301', game: 'zzz', name: 'Promotion Material',
+        iconUrl: 'https://example.test/promotion-material.png',
+      }],
+      ['zzz:501', { id: 'zzz:501', game: 'zzz', name: 'Core Material' }],
+      ['zzz:401', { id: 'zzz:401', game: 'zzz', name: 'Skill Material' }],
+    ] as const;
+    component.catalog.entities.set(new Map([[tiered.id, tiered]]));
+    component.catalog.materials.set(new Map<string, Material>(materials));
+    component.store.addGoal(tiered, {
+      'character-level': { current: 0, target: 1 },
+      promotion: { current: 0, target: 1 },
+      core: { current: 0, target: 1 },
+      'skill:basic': { current: 0, target: 1 },
+    });
+    fixture.detectChanges();
+
+    const group = component.totalsByGame()[0];
+    expect(group.sections.map((section) => section.label)).toEqual([
+      'Character Leveling', 'Promotion', 'Core Skill', 'Skill Leveling', 'Shared Materials',
+    ]);
+    const shared = group.sections.find((section) => section.id === 'shared-materials')!.rows[0];
+    expect(shared).toEqual(jasmine.objectContaining({
+      materialId: 'zzz:50', required: 600, owned: 0, missing: 600,
+      breakdown: [
+        { sectionId: 'character-leveling', sectionLabel: 'Character Leveling', required: 100 },
+        { sectionId: 'promotion', sectionLabel: 'Promotion', required: 200 },
+        { sectionId: 'skill-leveling', sectionLabel: 'Skill Leveling', required: 300 },
+      ],
+    }));
+
+    const levelSection = Array.from(root.querySelectorAll<HTMLElement>('.material-section'))
+      .find((section) => section.querySelector('.material-section-heading')?.textContent?.trim() === 'Character Leveling')!;
+    const cardNames = () => Array.from(levelSection.querySelectorAll<HTMLElement>('.material-card h4'))
+      .map((heading) => heading.textContent?.trim());
+    const originalOrder = ['Material A high', 'Material A medium', 'Material A low', 'Material B high'];
+    expect(cardNames()).toEqual(originalOrder);
+
+    const highCard = Array.from(levelSection.querySelectorAll<HTMLElement>('.material-card'))
+      .find((card) => card.textContent?.includes('Material A high'))!;
+    const highIcon = highCard.querySelector<HTMLImageElement>('.material-icon');
+    expect(highIcon?.style.borderColor).toBe('rgb(232, 184, 91)');
+    expect(highCard.style.borderColor).toBe('');
+    const unrankedIcon = root.querySelector<HTMLImageElement>('[src="https://example.test/promotion-material.png"]');
+    expect(unrankedIcon?.classList.contains('tier-border')).toBeFalse();
+    expect(unrankedIcon?.style.borderColor).toBe('');
+
+    const lowCard = Array.from(levelSection.querySelectorAll<HTMLElement>('.material-card'))
+      .find((card) => card.textContent?.includes('Material A low'))!;
+    const lowInput = lowCard.querySelector<HTMLInputElement>('input')!;
+    lowInput.value = '10';
+    lowInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(cardNames()).toEqual(originalOrder);
+
+    const dennyInputs = root.querySelectorAll<HTMLInputElement>('[aria-label="Owned Denny"]');
+    expect(dennyInputs.length).toBe(1);
+    const dennyCard = dennyInputs[0].closest('.material-card') as HTMLElement;
+    expect(dennyCard.textContent).toContain('Missing 600');
+    expect(dennyCard.textContent).toContain('Character Leveling 100');
+    dennyInputs[0].value = '250';
+    dennyInputs[0].dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(dennyCard.textContent).toContain('Missing 350');
+    expect(root.querySelectorAll('[aria-label="Owned Denny"]').length).toBe(1);
     fixture.destroy();
   });
 

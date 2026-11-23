@@ -1,3 +1,12 @@
+.dialog-title-content {
+  display: flex;
+  align-items: center;
+
+  span {
+    margin-right: 8px;
+  }
+}
+
 .notice-list {
   color: var(--mat-sys-on-surface-variant, #b9b6c4);
   font-size: 0.875rem;

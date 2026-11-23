@@ -14,6 +14,14 @@ export interface ExperienceCharacter {
   required: number;
 }
 
+export interface PlannedExperience {
+  materialId: string;
+  required: number;
+  owned: number;
+  missing: number;
+  characters: ExperienceCharacter[];
+}
+
 export const EXPERIENCE_GROUPS: ExperienceGroup[] = [
   { id: 'zzz:character-exp', game: 'zzz', items: [
     { id: 'zzz:300003', exp: 3000 }, { id: 'zzz:300002', exp: 600 }, { id: 'zzz:300001', exp: 100 },
@@ -52,10 +60,7 @@ export function experienceGroup(id: string): ExperienceGroup | undefined {
   return EXPERIENCE_GROUPS.find((group) => group.id === id);
 }
 
-export function planExperience(
-  group: ExperienceGroup, characters: ExperienceCharacter[], inventory: Inventory,
-): { materialId: string; required: number; owned: number; missing: number;
-  characters: ExperienceCharacter[] }[] {
+export function planExperience(group: ExperienceGroup, characters: ExperienceCharacter[], inventory: Inventory): PlannedExperience[] {
   const rows = group.items.map((item) => ({
     materialId: item.id, required: 0, owned: Math.max(0, Math.floor(inventory[item.id] ?? 0)),
     missing: 0, characters: [] as ExperienceCharacter[],
@@ -89,6 +94,7 @@ export function characterLevelPath(game: 'zzz' | 'wuwa', costs: number[]): Upgra
   return {
     id: CHARACTER_LEVEL_PATH,
     label: 'Character level',
+    levelBased: true,
     steps: costs.map((exp, index) => ({
       label: `Level ${index + 2}`,
       cost: { [experienceId(game)]: exp, ...(game === 'wuwa' ? { 'wuwa:2': exp * 35 / 100 } : {}) },

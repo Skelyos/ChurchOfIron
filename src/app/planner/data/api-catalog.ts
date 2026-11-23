@@ -1,5 +1,6 @@
 import { Material, MaterialCost, PlannerEntity, UpgradePath } from '../models/planner.model';
 import { characterLevelPath, wuwaLevelPath } from './character-experience';
+import { materialFamily, materialTier } from './material-metadata';
 
 type JsonObject = Record<string, unknown>;
 
@@ -54,6 +55,15 @@ function wuwaCost(value: unknown): MaterialCost {
   return cost;
 }
 
+const ZZZ_PROMOTION_SEAL_FAMILIES = [
+  'attack', 'stun', 'anomaly', 'support', 'defense', 'rupture', 'armorer',
+];
+
+function zzzMaterialFamily(name: string, id: string): string {
+  const seal = /^zzz:1002[123]([1-7])$/.exec(id);
+  return seal ? `${ZZZ_PROMOTION_SEAL_FAMILIES[Number(seal[1]) - 1]} certification seal` : materialFamily(name, id);
+}
+
 export function parseZzzIndex(value: unknown): CatalogEntry[] {
   return Object.entries(object(value)).map(([id, raw]) => {
     const item = object(raw);
@@ -80,8 +90,14 @@ export function parseZzzMaterials(value: unknown): Map<string, Material> {
     const materialId = `zzz:${numericId(id)}`;
     const path = item['icon'];
     const match = typeof path === 'string' && path.startsWith('Assets/') ? path.match(/\/([^/]+)\.png$/i) : null;
-    const iconUrl = match ? `https://static.nanoka.cc/assets/zzz/${encodeURIComponent(match[1])}.webp` : undefined;
-    materials.set(materialId, { id: materialId, game: 'zzz', name, iconUrl });
+    const iconName = match?.[1] ?? (typeof path === 'string' && /^[A-Za-z0-9_]+$/.test(path) ? path : undefined);
+    const iconUrl = iconName ? `https://static.nanoka.cc/assets/zzz/${encodeURIComponent(iconName)}.webp` : undefined;
+    const tier = materialTier(item['rank']);
+    materials.set(materialId, {
+      id: materialId, game: 'zzz', name, iconUrl, family: zzzMaterialFamily(name, materialId),
+      ...(/^(?:ExBigBoss|ExSmallBoss)\d+$/.test(iconName ?? '') ? { iconSprite: true as const } : {}),
+      ...(tier === undefined ? {} : { tier }),
+    });
   }
   return materials;
 }
@@ -93,7 +109,12 @@ export function parseWuwaMaterials(value: unknown): Map<string, Material> {
     const icon = item['Icon'];
     const iconUrl = typeof icon === 'string' &&
       /^https:\/\/api-v2\.encore\.moe\/resource\/[A-Za-z0-9_./%-]+\.webp$/.test(icon) ? icon : undefined;
-    return [id, { id, game: 'wuwa', name: text(item['Name']), iconUrl }];
+    const name = text(item['Name']);
+    const tier = materialTier(item['QualityId']);
+    return [id, {
+      id, game: 'wuwa', name, iconUrl, family: materialFamily(name, id),
+      ...(tier === undefined ? {} : { tier }),
+    }];
   }));
 }
 
@@ -119,11 +140,15 @@ export function parseZzzDetail(entry: CatalogEntry, value: unknown): PlannerEnti
   });
   for (const [key, raw] of Object.entries(object(data['skill']))) {
     const skill = object(raw);
-    const steps = Object.entries(object(skill['material']))
+    const levels = Object.entries(object(skill['material']))
       .sort(([a], [b]) => Number(a) - Number(b))
-      .map(([level, cost]) => ({ label: `Level ${level} to ${Number(level) + 1}`, cost: zzzCost(cost) }))
+      .map(([level, cost]) => ({ level: Number(level), cost: zzzCost(cost) }))
       .filter((step) => Object.keys(step.cost).length);
-    if (steps.length) paths.push({ id: `skill:${key}`, label: key, steps });
+    if (levels.some((step, index) => step.level !== index + 1)) throw new Error(`Missing ZZZ skill level ${key}`);
+    if (levels.length) paths.push({
+      id: `skill:${key}`, label: key, levelBased: true,
+      steps: levels.map(({ level, cost }) => ({ label: `Level ${level} to ${level + 1}`, cost })),
+    });
   }
   const core = object(object(data['passive'])['materials']);
   const coreSteps = Object.entries(core).sort(([a], [b]) => Number(a) - Number(b))
@@ -152,11 +177,14 @@ export function parseWuwaDetail(entry: CatalogEntry, value: unknown): PlannerEnt
   if (promotion.length) paths.push({ id: 'promotion', label: 'Ascension', steps: promotion });
   for (const raw of array(data['Skills'])) {
     const skill = object(raw);
-    const steps = array(skill['Consumes']).map(object)
+    const costs = array(skill['Consumes']).map(object)
       .sort((a, b) => Number(a['SkillId']) - Number(b['SkillId']))
-      .map((row) => ({ label: `Level ${row['SkillId']}`, cost: wuwaCost(row['Consume']) }))
-      .filter((step) => Object.keys(step.cost).length);
-    if (steps.length) paths.push({ id: `skill:${numericId(skill['SkillId'])}`, label: text(skill['SkillType']) + ': ' + text(skill['SkillName']), steps });
+      .map((row) => wuwaCost(row['Consume']))
+      .filter((cost) => Object.keys(cost).length);
+    if (costs.length) paths.push({
+      id: `skill:${numericId(skill['SkillId'])}`, label: text(skill['SkillType']) + ': ' + text(skill['SkillName']),
+      levelBased: true, steps: costs.map((cost, index) => ({ label: `Level ${index + 2}`, cost })),
+    });
   }
   for (const raw of array(data['SkillTree'])) {
     const node = object(raw);

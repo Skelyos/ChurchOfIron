@@ -1,3 +1,13 @@
+@use 'sass:math';
+
+.material-section {
+  margin-bottom: 24px;
+}
+
+.material-section-heading {
+  margin: 18px 0 10px;
+}
+
 .material-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
@@ -29,6 +39,59 @@
   background: color-mix(in srgb, var(--mat-sys-surface-container, #333) 70%, transparent);
 }
 
+.material-icon.tier-border {
+  box-sizing: border-box;
+  border: 3px solid;
+}
+
+.sprite-icon {
+  position: relative;
+  overflow: hidden;
+}
+
+.sprite-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.sprite-icon.sprite-sheet img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: math.percentage(math.div(2048, 156));
+  max-width: none;
+  height: auto;
+}
+
+@mixin sprite-frames($count) {
+  @for $frame from 0 through $count - 1 {
+    #{math.percentage(math.div($frame, $count))} {
+      left: -100% * ($frame % 13);
+      top: -100% * math.floor(math.div($frame, 13));
+    }
+  }
+}
+
+@keyframes material-sprite-60 {
+  @include sprite-frames(60);
+}
+
+@keyframes material-sprite-120 {
+  @include sprite-frames(120);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sprite-sheet .sprite-60 {
+    animation: material-sprite-60 2s steps(1, end) infinite;
+  }
+
+  .sprite-sheet .sprite-120 {
+    animation: material-sprite-120 4s steps(1, end) infinite;
+  }
+}
+
 .material-icon-placeholder {
   display: grid;
   place-items: center;
@@ -53,6 +116,16 @@
 
 .material-card.done .material-summary {
   background: color-mix(in srgb, var(--mat-sys-primary, #bd9bff) 8%, transparent);
+}
+
+.material-breakdown {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 8px 12px;
+  color: var(--mat-sys-on-surface-variant, #b9b6c4);
+  font-size: 0.8rem;
 }
 
 .material-details {

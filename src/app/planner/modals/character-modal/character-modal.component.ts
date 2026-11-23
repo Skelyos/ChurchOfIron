@@ -5,11 +5,26 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 import { CatalogEntry } from '../../data/api-catalog';
 import { CHARACTER_LEVEL_PATH } from '../../data/character-experience';
 import { GAMES, GameId, Goal, PathRange, PlannerEntity } from '../../models/planner.model';
 import { isGoalCompatible, pathPosition } from '../../services/calc';
 import { CatalogService } from '../../services/catalog-service';
+
+function initialDraftRanges(goal?: Goal, entity?: PlannerEntity): Record<string, PathRange> {
+  if (!goal) return {};
+  const ranges = structuredClone(goal.ranges);
+  if (entity?.paths.some((path) => path.id === CHARACTER_LEVEL_PATH) && !ranges[CHARACTER_LEVEL_PATH]) {
+    ranges[CHARACTER_LEVEL_PATH] = { current: 0, target: 0 };
+  }
+  for (const path of entity?.paths ?? []) {
+    if (goal.game === 'endfield' && path.id.startsWith('ability:') && !ranges[path.id]) {
+      ranges[path.id] = { current: 0, target: 0 };
+    }
+  }
+  return ranges;
+}
 
 export interface CharacterModalData {
   filter: Signal<GameId | 'all'>;
@@ -21,7 +36,7 @@ export interface CharacterModalData {
 
 @Component({
   selector: 'app-character-modal',
-  imports: [FormsModule, MatButtonModule, MatCheckboxModule, MatDialogModule, MatFormFieldModule, MatInputModule],
+  imports: [FormsModule, MatButtonModule, MatCheckboxModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatIconModule],
   templateUrl: './character-modal.component.html',
   styleUrls: ['../../planner-common.scss', '../modal-common.scss', './character-modal.component.scss'],
 })
@@ -31,19 +46,15 @@ export class CharacterModalComponent {
   private readonly ref = inject(MatDialogRef<CharacterModalComponent>);
   private readonly destroyRef = inject(DestroyRef);
   readonly pathPosition = pathPosition;
-  readonly characterLevelPath = CHARACTER_LEVEL_PATH;
   readonly search = signal('');
   readonly selectedEntity = signal<PlannerEntity | null>(this.data.entity ?? null);
-  readonly draftRanges = signal<Record<string, PathRange>>(this.data.goal ? {
-    ...structuredClone(this.data.goal.ranges),
-    ...(this.data.entity?.paths.some((path) => path.id === CHARACTER_LEVEL_PATH) &&
-      !this.data.goal.ranges[CHARACTER_LEVEL_PATH] ? { [CHARACTER_LEVEL_PATH]: { current: 0, target: 0 } } : {}),
-  } : {});
+  readonly draftRanges = signal<Record<string, PathRange>>(initialDraftRanges(this.data.goal, this.data.entity));
   readonly editingGoalId = signal<string | null>(this.data.goal?.id ?? null);
   readonly characterLoading = signal(false);
   readonly characterError = signal('');
   readonly characterMessage = signal('');
   readonly keepCharacterOpen = signal(false);
+  public showDataInformation = signal(false);
 
   readonly catalogMatches = computed(() => {
     const q = this.search().trim().toLowerCase();
@@ -69,8 +80,10 @@ export class CharacterModalComponent {
       const entity = await this.catalog.loadEntity(entry);
       if (this.destroyRef.destroyed) return;
       this.selectedEntity.set(entity);
-      this.draftRanges.set(Object.fromEntries(entity.paths.map((path) =>
-        [path.id, { current: 0, target: path.steps.length }])));
+      this.draftRanges.set(this.data.goal?.entityId === entity.id
+        ? initialDraftRanges(this.data.goal, entity)
+        : Object.fromEntries(entity.paths.map((path) =>
+          [path.id, { current: 0, target: path.steps.length }])));
     } catch (error) {
       if (!this.destroyRef.destroyed) {
         this.characterError.set(`Could not load ${entry.name}: ${error instanceof Error ? error.message : String(error)}`);

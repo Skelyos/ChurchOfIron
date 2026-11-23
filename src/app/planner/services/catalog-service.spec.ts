@@ -49,6 +49,16 @@ describe('catalog service', () => {
       return [nodeId, { nodeId, charId, nodeType: 1, breakStage: index + 1,
         requiredItem: [{ id: 'item_gold', count: 1600 }] }];
     }));
+    const skillGroupIds = ['NormalAttack', 'NormalSkill', 'ComboSkill', 'UltimateSkill']
+      .map((name) => `${charId}_${name}`);
+    const skillTypes: Record<string, number> = { NormalAttack: 0, NormalSkill: 1, ComboSkill: 3, UltimateSkill: 2 };
+    const skillGroupMap = Object.fromEntries(skillGroupIds.map((id, index) => [id, {
+      skillGroupId: id, skillGroupType: skillTypes[id.split('_').pop() ?? ''], name: { id: index + 7 },
+    }]));
+    const skillLevelUp = skillGroupIds.map((skillGroupId) => ({
+      skillGroupId, level: 2, goldCost: 200,
+      itemBundle: [{ id: 'item_skill_book', count: 6 }],
+    }));
     let version = 'revision-a';
     let fail = false;
     const fetchSpy = spyOn(window, 'fetch').and.callFake(async (url) => {
@@ -58,18 +68,24 @@ describe('catalog service', () => {
       if (path === '/table/CharGrowthTable/all') return new Response(JSON.stringify({
         [charId]: { charId, name: { id: '7201533996830628902' } },
       }));
-      if (path === '/i18n/dict/EN/table/CharGrowthTable/all') return new Response(JSON.stringify({ '7201533996830628902': 'Perlica' }));
+      if (path === '/i18n/dict/EN/table/CharGrowthTable/all') return new Response(JSON.stringify({
+        '7201533996830628902': 'Perlica', '7': 'Destructive Sequence',
+        '8': 'Constructive Sequence', '9': 'Sealing Sequence', '10': 'Bombardment Sequence',
+      }));
       if (path === '/table/ItemTable/all') return new Response(JSON.stringify(Object.fromEntries([
         'item_gold', 'item_expcard_stage1_high', 'item_expcard_stage1_mid', 'item_expcard_stage1_low',
-        'item_expcard_stage2_high', 'item_expcard_stage2_low',
+        'item_expcard_stage2_high', 'item_expcard_stage2_low', 'item_skill_book',
       ].map((id, i) => [id, { id, name: { id: i + 1 } }]))));
       if (path === '/i18n/dict/EN/table/ItemTable/all') return new Response(JSON.stringify({
         '1': 'T-Creds', '2': 'Advanced Combat Record', '3': 'Intermediate Combat Record',
         '4': 'Elementary Combat Record', '5': 'Advanced Cognitive Carrier', '6': 'Elementary Cognitive Carrier',
+        '7': 'Skill Manual',
       }));
       if (path === '/table/CharLevelUpTable/all') return new Response(JSON.stringify(
         Object.fromEntries(Array.from({ length: 89 }, (_, i) => [String(i + 1), { exp: 100, gold: 0 }]))));
-      if (path === `/table/CharGrowthTable/${charId}`) return new Response(JSON.stringify({ charId, charBreakCostMap: nodes }));
+      if (path === `/table/CharGrowthTable/${charId}`) {
+        return new Response(JSON.stringify({ charId, charBreakCostMap: nodes, skillGroupMap, skillLevelUp }));
+      }
       return new Response('', { status: 404 });
     });
     const service = TestBed.inject(CatalogService);
@@ -83,6 +99,10 @@ describe('catalog service', () => {
     const entity = await service.loadEntity(entry);
     expect(entity.paths.find((path) => path.id === 'promotion')?.steps[0].cost).toEqual({ 'endfield:item_gold': 1600 });
     expect(entity.paths.find((path) => path.id === 'character-level')?.steps[59].cost).toEqual({ 'endfield:carrier-exp': 100 });
+    expect(entity.paths.find((path) => path.id === `ability:${skillGroupIds[0]}`)).toEqual({
+      id: `ability:${skillGroupIds[0]}`, label: '(Basic Attack) Destructive Sequence', levelBased: true,
+      steps: [{ label: 'Level 2', cost: { 'endfield:item_skill_book': 6, 'endfield:item_gold': 200 } }],
+    });
     fail = true;
     await service.load('endfield');
     expect(service.status().endfield).toContain('previously loaded data may be stale');

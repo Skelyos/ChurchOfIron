@@ -1,5 +1,10 @@
 <h2 mat-dialog-title class="dialog-title">
-  <span>{{ editingGoalId() ? 'Edit character build' : 'Add character' }}</span>
+  <div class="dialog-title-content">
+    <span>{{ editingGoalId() ? 'Edit character build' : 'Add character' }}</span>
+    <button mat-icon-button type="button" aria-label="Toggle Data Information" (click)="showDataInformation.set(!showDataInformation())">
+      <mat-icon>info</mat-icon>
+    </button>
+  </div>
   <mat-checkbox [checked]="keepCharacterOpen()" (change)="keepCharacterOpen.set($event.checked)">Keep open</mat-checkbox>
 </h2>
 <mat-dialog-content>
@@ -12,25 +17,25 @@
       <p>{{ entity.attributes?.join(' · ') }}</p>
     }
     <p class="muted">{{ entity.coverage }}</p>
-    <p>Set the current and target position for each upgrade track. Character level starts at 1 with no partial EXP.</p>
+    <p>Set the current and target position for each upgrade track. Character and skill levels start at 1; character level assumes no partial EXP.</p>
     @for (path of entity.paths; track path.id) {
       @if (draftRanges()[path.id]; as range) {
         <div class="range-row">
           <strong>{{ path.label }}</strong>
           <mat-form-field appearance="outline" class="compact-field">
             <mat-label>Current</mat-label>
-            <input matInput type="number" [min]="path.id === characterLevelPath ? 1 : 0"
-              [max]="path.steps.length + (path.id === characterLevelPath ? 1 : 0)"
-              [ngModel]="range.current + (path.id === characterLevelPath ? 1 : 0)"
-              (ngModelChange)="setDraftRange(path.id, 'current', path.id === characterLevelPath && $event !== null ? $event - 1 : $event, path.steps.length)" />
+            <input matInput type="number" [min]="path.levelBased ? 1 : 0"
+              [max]="path.steps.length + (path.levelBased ? 1 : 0)"
+              [ngModel]="range.current + (path.levelBased ? 1 : 0)"
+              (ngModelChange)="setDraftRange(path.id, 'current', path.levelBased && $event !== null ? $event - 1 : $event, path.steps.length)" />
           </mat-form-field>
           <span class="range-arrow" aria-hidden="true">→</span>
           <mat-form-field appearance="outline" class="compact-field">
             <mat-label>Target</mat-label>
-            <input matInput type="number" [min]="path.id === characterLevelPath ? 1 : 0"
-              [max]="path.steps.length + (path.id === characterLevelPath ? 1 : 0)"
-              [ngModel]="range.target + (path.id === characterLevelPath ? 1 : 0)"
-              (ngModelChange)="setDraftRange(path.id, 'target', path.id === characterLevelPath && $event !== null ? $event - 1 : $event, path.steps.length)" />
+            <input matInput type="number" [min]="path.levelBased ? 1 : 0"
+              [max]="path.steps.length + (path.levelBased ? 1 : 0)"
+              [ngModel]="range.target + (path.levelBased ? 1 : 0)"
+              (ngModelChange)="setDraftRange(path.id, 'target', path.levelBased && $event !== null ? $event - 1 : $event, path.steps.length)" />
           </mat-form-field>
           <small class="muted">{{ pathPosition(path, range.current) }} → {{ pathPosition(path, range.target) }} ({{ path.steps.length }} steps)</small>
         </div>
@@ -39,17 +44,19 @@
       }
     }
   } @else {
-    <div class="notice-list">
-      <p>Character data from Encore.moe, Nanoka and Endfield Assets. Weapon planning is not included.</p>
-      <p>ZZZ data uses a beta dataset: all ZZZ characters and costs may change, including released characters.</p>
-      <p>Endfield supports character level and promotion only. Its source may include unavailable characters; release status is unverified.</p>
-    </div>
-    <div class="source-status">
-      <span>ZZZ: {{ catalog.status().zzz }}</span>
-      <span>WuWa: {{ catalog.status().wuwa }}</span>
-      <span>Endfield: {{ catalog.status().endfield }}</span>
-      <button mat-button type="button" (click)="data.reloadCatalog()">Retry data sources</button>
-    </div>
+    @if (showDataInformation()) {
+      <div class="notice-list">
+        <p>Character data from Encore.moe, Nanoka and Endfield Assets. Weapon planning is not included.</p>
+        <p>ZZZ data uses a beta dataset: all ZZZ characters and costs may change, including released characters.</p>
+        <p>Endfield supports character level, promotion, and ability skill levels. Its source may include unavailable characters; release status is unverified.</p>
+      </div>
+      <div class="source-status">
+        <span>ZZZ: {{ catalog.status().zzz }}</span>
+        <span>WuWa: {{ catalog.status().wuwa }}</span>
+        <span>Endfield: {{ catalog.status().endfield }}</span>
+        <button mat-button type="button" (click)="data.reloadCatalog()">Retry data sources</button>
+      </div>
+    }
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Search characters</mat-label>
       <input matInput type="search" placeholder="Search by name" [ngModel]="search()" (ngModelChange)="search.set($event)" />
