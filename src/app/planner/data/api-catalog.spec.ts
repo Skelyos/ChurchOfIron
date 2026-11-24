@@ -1,4 +1,5 @@
-import { parseWuwaDetail, parseWuwaIndex, parseWuwaMaterials, parseZzzDetail, parseZzzIndex, parseZzzMaterials } from './api-catalog';
+import { parseWuwaDetail, parseWuwaIndex, parseWuwaMaterials } from './wuwa-catalog';
+import { parseZzzDetail, parseZzzIndex, parseZzzMaterials } from './zzz-catalog';
 import { goalCost, pathPosition } from '../services/calc';
 
 describe('community catalog adapters', () => {

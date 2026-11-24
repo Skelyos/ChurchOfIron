@@ -6,7 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { CatalogEntry } from '../../data/api-catalog';
+import { CatalogEntry } from '../../data/catalog-common';
 import { CHARACTER_LEVEL_PATH } from '../../data/character-experience';
 import { GAMES, GameId, Goal, PathRange, PlannerEntity } from '../../models/planner.model';
 import { isGoalCompatible, pathPosition } from '../../services/calc';

@@ -2,25 +2,12 @@ import { Component, computed, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { GAMES, GameId, Inventory, Material, MaterialRequirement } from '../../models/planner.model';
-import { EXPERIENCE_GROUPS, ExperienceCharacter, experienceGroup, planExperience } from '../../data/character-experience';
+import { GameId, Inventory, Material } from '../../models/planner.model';
+import { EXPERIENCE_GROUPS, experienceGroup, planExperience } from '../../data/character-experience';
 import { DecimalPipe } from '@angular/common';
+import { MaterialGroup, MaterialRow } from './planner-materials.model';
 
-export interface MaterialGroup {
-  game: (typeof GAMES)[number];
-  sections: MaterialSection[];
-}
-
-export interface MaterialSection {
-  id: string;
-  label: string;
-  rows: MaterialRow[];
-}
-
-export interface MaterialRow extends MaterialRequirement {
-  characters: ExperienceCharacter[];
-  breakdown?: { sectionId: string; sectionLabel: string; required: number }[];
-}
+export { MaterialGroup, MaterialRow, MaterialSection } from './planner-materials.model';
 
 function hasBreakdown(row: MaterialRow | ReturnType<typeof planExperience>[number]): row is MaterialRow {
   return 'breakdown' in row;

@@ -1,14 +1,13 @@
-import { Injectable, signal } from '@angular/core';
-import { CatalogEntry, parseWuwaDetail, parseWuwaIndex, parseWuwaMaterials, parseZzzDetail, parseZzzIndex, parseZzzMaterials } from '../data/api-catalog';
-import { parseEndfieldDetail, parseEndfieldIndex, parseEndfieldJson, parseEndfieldLevelPath, parseEndfieldMaterials } from '../data/endfield-catalog';
-import { Material, PlannerEntity, UpgradePath } from '../models/planner.model';
+import { inject, Injectable, signal } from '@angular/core';
+import { CatalogEntry } from '../data/catalog-common';
+import { GameId, Material, PlannerEntity } from '../models/planner.model';
 import { experienceGroup, EXPERIENCE_GROUPS } from '../data/character-experience';
+import { CatalogProvider } from './catalog-providers/catalog-provider';
+import { EndfieldCatalogProvider } from './catalog-providers/endfield-catalog.provider';
+import { WuwaCatalogProvider } from './catalog-providers/wuwa-catalog.provider';
+import { ZzzCatalogProvider } from './catalog-providers/zzz-catalog.provider';
 
-const ZZZ_VERSION = '3.4.4+20539349';
-const ZZZ_BASE = `https://static.nanoka.cc/zzz/${ZZZ_VERSION}`;
-const WUWA_BASE = 'https://api-v2.encore.moe/api/en';
-const ENDFIELD_BASE = 'https://endfield-assets.fffdan.com';
-type SupportedGame = 'zzz' | 'wuwa' | 'endfield';
+type SupportedGame = GameId;
 
 @Injectable({ providedIn: 'root' })
 export class CatalogService {
@@ -17,70 +16,22 @@ export class CatalogService {
   readonly materials = signal(new Map<string, Material>());
   readonly status = signal<Record<SupportedGame, string>>({ zzz: 'Not loaded', wuwa: 'Not loaded', endfield: 'Not loaded' });
   private readonly pending = new Map<string, Promise<PlannerEntity>>();
-  private endfieldLoadedVersion: string | null = null;
-  private endfieldLevels: UpgradePath | null = null;
-  private endfieldCharacterTranslations: unknown | null = null;
-
-  private async json(url: string): Promise<unknown> {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return response.json();
-  }
-
-  private async endfieldJson(path: string): Promise<unknown> {
-    const response = await fetch(`${ENDFIELD_BASE}${path}`);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return parseEndfieldJson(await response.text());
-  }
-
-  private async endfieldVersion(): Promise<string> {
-    const response = await fetch(`${ENDFIELD_BASE}/version`);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const version = (await response.text()).trim();
-    if (!version) throw new Error('Missing Endfield source version');
-    return version;
-  }
+  private readonly providers: Record<SupportedGame, CatalogProvider> = {
+    zzz: inject(ZzzCatalogProvider),
+    wuwa: inject(WuwaCatalogProvider),
+    endfield: inject(EndfieldCatalogProvider),
+  };
 
   async load(game: SupportedGame): Promise<void> {
     this.status.update((s) => ({ ...s, [game]: 'Loading...' }));
     try {
-      if (game === 'endfield') {
-        const version = await this.endfieldVersion();
-        const [index, names, items, itemNames, levels] = await Promise.all([
-          this.endfieldJson('/table/CharGrowthTable/all'),
-          this.endfieldJson('/i18n/dict/EN/table/CharGrowthTable/all'),
-          this.endfieldJson('/table/ItemTable/all'),
-          this.endfieldJson('/i18n/dict/EN/table/ItemTable/all'),
-          this.endfieldJson('/table/CharLevelUpTable/all'),
-        ]);
-        if (version !== await this.endfieldVersion()) throw new Error('Endfield source changed during loading; retry');
-        const entries = parseEndfieldIndex(index, names);
-        const materials = parseEndfieldMaterials(items, itemNames);
-        const levelPath = parseEndfieldLevelPath(levels);
-        if (!entries.length || !materials.size) throw new Error('Empty catalog');
-        this.entries.update((existing) => [...existing.filter((entry) => entry.game !== game), ...entries]);
-        this.materials.update((existing) => new Map([...existing].filter(([, material]) => material.game !== game).concat([...materials])));
-        this.entities.update((existing) => new Map([...existing].filter(([, entity]) => entity.game !== game)));
-        this.endfieldLoadedVersion = version;
-        this.endfieldLevels = levelPath;
-        this.endfieldCharacterTranslations = names;
-        this.status.update((s) => ({ ...s, endfield: `Loaded Endfield Assets ${version}; release status unverified` }));
-        return;
-      }
-      const base = game === 'zzz' ? ZZZ_BASE : WUWA_BASE;
-      const [index, items] = await Promise.all([
-        this.json(`${base}/character${game === 'zzz' ? '.json' : ''}`),
-        this.json(`${base}/${game === 'zzz' ? 'en/item.json' : 'item'}`),
-      ]);
-      const entries = game === 'zzz' ? parseZzzIndex(index) : parseWuwaIndex(index);
-      const materials = game === 'zzz' ? parseZzzMaterials(items) : parseWuwaMaterials(items);
-      if (!entries.length || !materials.size) throw new Error('Empty catalog');
-      this.entries.update((existing) => [...existing.filter((entry) => entry.game !== game), ...entries]);
-      this.materials.update((existing) => new Map([...existing, ...materials]));
+      const snapshot = await this.providers[game].loadCatalog();
+      this.entries.update((existing) => [...existing.filter((entry) => entry.game !== game), ...snapshot.entries]);
+      this.materials.update((existing) => snapshot.replaceGameMaterials
+        ? new Map([...existing].filter(([, material]) => material.game !== game).concat([...snapshot.materials]))
+        : new Map([...existing, ...snapshot.materials]));
       this.entities.update((existing) => new Map([...existing].filter(([, entity]) => entity.game !== game)));
-      this.status.update((s) => ({
-        ...s, [game]: game === 'zzz' ? `Loaded beta dataset ${ZZZ_VERSION}` : 'Loaded live Encore.moe data',
-      }));
+      this.status.update((s) => ({ ...s, [game]: snapshot.status }));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       const stale = this.entries().some((entry) => entry.game === game) ? '; previously loaded data may be stale' : '';
@@ -103,30 +54,7 @@ export class CatalogService {
   }
 
   private async fetchEntity(entry: CatalogEntry): Promise<PlannerEntity> {
-    const prefix = `${entry.game}:`;
-    const id = entry.id.startsWith(prefix) ? entry.id.slice(prefix.length) : '';
-    if (!(entry.game === 'endfield' ? /^chr_\d{4}_[a-z0-9]+$/ : /^\d+$/).test(id)) {
-      throw new Error('Invalid character ID');
-    }
-    if (entry.game === 'endfield') {
-      const before = await this.endfieldVersion();
-      const data = await this.endfieldJson(`/table/CharGrowthTable/${id}`);
-      const after = await this.endfieldVersion();
-      if (before !== after || after !== this.endfieldLoadedVersion) {
-        throw new Error('Endfield source changed; reload the catalog');
-      }
-      if (!this.endfieldLevels) throw new Error('Endfield level data is unavailable; reload the catalog');
-      if (!this.endfieldCharacterTranslations) throw new Error('Endfield character translations are unavailable; reload the catalog');
-      return this.saveEntity(parseEndfieldDetail(
-        entry, data, this.endfieldLevels, this.endfieldCharacterTranslations,
-      ));
-    }
-    const url = entry.game === 'zzz'
-      ? `${ZZZ_BASE}/en/character/${id}.json`
-      : `${WUWA_BASE}/character/${id}`;
-    const data = await this.json(url);
-    const entity = entry.game === 'zzz' ? parseZzzDetail(entry, data) : parseWuwaDetail(entry, data);
-    return this.saveEntity(entity);
+    return this.saveEntity(await this.providers[entry.game].loadEntity(entry));
   }
 
   private saveEntity(entity: PlannerEntity): PlannerEntity {

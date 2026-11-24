@@ -10,15 +10,19 @@ export function isGoalCompatible(goal: Goal, entity: PlannerEntity): boolean {
   if (!goal.ranges || typeof goal.ranges !== 'object') return false;
   const paths = new Map(entity.paths.map((path) => [path.id, path]));
   const ranges = Object.entries(goal.ranges);
-  return entity.paths.every((path) => path.id === CHARACTER_LEVEL_PATH ||
-      (goal.game === 'endfield' && path.id.startsWith('ability:') && !goal.ranges[path.id]) ||
-      !!goal.ranges[path.id]) &&
-    ranges.every(([id, range]) => {
-      const path = paths.get(id);
-      return !!path && !!range && Number.isInteger(range.current) && Number.isInteger(range.target) &&
-        range.current >= 0 && range.target >= 0 && range.current <= path.steps.length &&
-        range.target <= path.steps.length && range.current <= range.target;
-    });
+  const hasRequiredRanges = entity.paths.every((path) => {
+    if (path.id === CHARACTER_LEVEL_PATH) return true;
+    if (goal.game === 'endfield' && path.id.startsWith('ability:') && !goal.ranges[path.id]) return true;
+    return !!goal.ranges[path.id];
+  });
+  if (!hasRequiredRanges) return false;
+
+  return ranges.every(([id, range]) => {
+    const path = paths.get(id);
+    return !!path && !!range && Number.isInteger(range.current) && Number.isInteger(range.target) &&
+      range.current >= 0 && range.target >= 0 && range.current <= path.steps.length &&
+      range.target <= path.steps.length && range.current <= range.target;
+  });
 }
 
 function addCost(into: MaterialCost, cost: MaterialCost): void {

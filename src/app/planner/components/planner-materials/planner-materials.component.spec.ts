@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { parseZzzMaterials } from '../../data/api-catalog';
+import { parseZzzMaterials } from '../../data/zzz-catalog';
 import { GAMES, GameId } from '../../models/planner.model';
 import { materialTierBorderColor, PlannerMaterialsComponent } from './planner-materials.component';
 

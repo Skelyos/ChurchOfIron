@@ -6,7 +6,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { PlannerComponent } from './planner.component';
 import { CatalogService } from './services/catalog-service';
 import { EMPTY_STATE, PlannerStorage } from './services/planner-storage';
-import { CatalogEntry } from './data/api-catalog';
+import { CatalogEntry } from './data/catalog-common';
 import { Material, PlannerEntity } from './models/planner.model';
 import { CharacterModalComponent } from './modals/character-modal/character-modal.component';
 import { EventsModalComponent } from './modals/events-modal/events-modal.component';

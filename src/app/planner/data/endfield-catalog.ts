@@ -1,4 +1,4 @@
-import { CatalogEntry, object } from './api-catalog';
+import { CatalogEntry, object } from './catalog-common';
 import { Material, MaterialCost, PlannerEntity, UpgradePath } from '../models/planner.model';
 import { CHARACTER_LEVEL_PATH } from './character-experience';
 import { materialFamily, materialTier } from './material-metadata';
